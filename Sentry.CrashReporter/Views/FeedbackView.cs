@@ -3,11 +3,11 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed partial class MainPage : Page
+public sealed partial class FeedbackView : Page
 {
-    public MainPage()
+    public FeedbackView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<MainPageViewModel>();
+        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<FeedbackViewModel>();
         this.DataContext(vm)
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid
@@ -28,16 +28,25 @@ public sealed partial class MainPage : Page
                         .Grid(row: 0),
 
                     new FormField { Title = "Name" }
-                        .Text(x => x.Binding(() => vm.Name).TwoWay())
+                        .TextBox(tb =>
+                        {
+                            tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
+                            tb.Text(x => x.Binding(() => vm.Name).TwoWay());
+                        })
                         .Grid(row: 1),
 
                     new FormField { Title = "Email" }
-                        .Text(x => x.Binding(() => vm.Email).TwoWay())
+                        .TextBox(tb =>
+                        {
+                            tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
+                            tb.Text(x => x.Binding(() => vm.Email).TwoWay());
+                        })
                         .Grid(row: 2),
 
                     new FormField { Title = "Description" }
                         .TextBox(tb =>
                         {
+                            tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
                             tb.Text(x => x.Binding(() => vm.Description).TwoWay());
                             tb.AcceptsReturn = true;
                             tb.Height = double.NaN;
@@ -66,7 +75,7 @@ public sealed partial class MainPage : Page
         }.Grid(row: 0);
     }
 
-    private static UIElement Footer(MainPageViewModel vm)
+    private static UIElement Footer(FeedbackViewModel vm)
     {
         return new StackPanel
         {

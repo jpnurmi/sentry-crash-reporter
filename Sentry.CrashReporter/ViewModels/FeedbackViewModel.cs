@@ -6,13 +6,46 @@ using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
 namespace Sentry.CrashReporter.ViewModels;
 
-public class MainPageViewModel : INotifyPropertyChanged
+public class FeedbackViewModel : INotifyPropertyChanged
 {
     private string? _dsn;
+    private SentryId? _eventId;
     private Envelope? _envelope;
     private string _name = string.Empty;
     private string _email = string.Empty;
     private string _description = string.Empty;
+
+    private Envelope? Envelope
+    {
+        get => _envelope;
+        set
+        {
+            _envelope = value;
+            Dsn = value?.Header.GetValueOrDefault("dsn") as string;
+            SubmitCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    private string? Dsn
+    {
+        get => _dsn;
+        set {
+            _dsn = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CanGiveFeedback));
+        }
+    }
+
+    private SentryId? EventId
+    {
+        get => _eventId;
+        set
+        {
+            _eventId = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CanGiveFeedback));
+        }
+    }
 
     public string Name
     {
@@ -35,15 +68,14 @@ public class MainPageViewModel : INotifyPropertyChanged
     public RelayCommand SubmitCommand { get; }
     public RelayCommand CancelCommand { get; }
 
-    public MainPageViewModel(EnvelopeService service)
+    public FeedbackViewModel(EnvelopeService service)
     {
         SubmitCommand = new RelayCommand(Submit, CanSubmit);
         CancelCommand = new RelayCommand(Cancel);
 
         service.OnEnvelope += envelope =>
         {
-            _envelope = envelope;
-            _dsn = envelope.Header.GetValueOrDefault("dsn") as string;
+            Envelope = envelope;
             SubmitCommand.NotifyCanExecuteChanged();
 
             SentrySdk.Init(options =>
@@ -60,15 +92,24 @@ public class MainPageViewModel : INotifyPropertyChanged
         {
             Name = @event?.User.Username ?? string.Empty;
             Email = @event?.User.Email ?? string.Empty;
+            EventId = @event?.EventId;
         };
     }
 
     private bool CanSubmit() => _envelope != null && !string.IsNullOrWhiteSpace(_dsn);
+    public bool CanGiveFeedback => _eventId != null && !string.IsNullOrWhiteSpace(_dsn);
 
     private void Submit()
     {
         // TODO: error handling
         SentrySdk.CaptureEnvelope(_envelope!);
+
+        if (!string.IsNullOrWhiteSpace(Description))
+        {
+            var feedback = new SentryFeedback(Description, Email, Name, null, null, EventId);
+            SentrySdk.CaptureFeedback(feedback);
+        }
+
         (Application.Current as App)?.MainWindow?.Close(); // TODO: cleanup
     }
 
