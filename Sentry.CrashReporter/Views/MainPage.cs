@@ -1,4 +1,7 @@
-namespace Sentry.CrashReporter;
+using Sentry.CrashReporter.Controls;
+using Sentry.CrashReporter.ViewModels;
+
+namespace Sentry.CrashReporter.Views;
 
 using Sentry.CrashReporter.Models;
 
@@ -6,8 +9,8 @@ public sealed partial class MainPage : Page
 {
     public MainPage()
     {
-        var viewModel = new MainPageViewModel();
-        this.DataContext(viewModel)
+        var vm = new MainPageViewModel();
+        this.DataContext(vm)
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid
             {
@@ -22,22 +25,22 @@ public sealed partial class MainPage : Page
                     new StackPanel
                     {
                         Orientation = Orientation.Vertical,
+                        Padding = new Thickness(16),
+                        Spacing = 16,
                         Children =
                         {
-                            new TextBlock { Text = "Name" },
-                            new TextBox()
-                                .Text(x => x.Binding(() => viewModel.Name).TwoWay()),
-                            new TextBlock { Text = "Email" },
-                            new TextBox()
-                                .Text(x => x.Binding(() => viewModel.Email).TwoWay()),
-                            new TextBlock { Text = "Description" },
-                            new TextBox
+                            new FormField { Title = "Name" }
+                                .Text(x => x.Binding(() => vm.Name).TwoWay()),
+                            new FormField { Title = "Email" }
+                                .Text(x => x.Binding(() => vm.Email).TwoWay()),
+                            new FormField { Title = "Description" }
+                                .TextBox(tb =>
                                 {
-                                    AcceptsReturn = true,
-                                    Height = 100,
-                                    TextWrapping = TextWrapping.Wrap
-                                } 
-                                .Text(x => x.Binding(() => viewModel.Description).TwoWay()),
+                                    tb.Text(x => x.Binding(() => vm.Description).TwoWay());
+                                    tb.AcceptsReturn = true;
+                                    tb.Height = 100;
+                                    tb.TextWrapping = TextWrapping.Wrap;
+                                }),
                         },
                     }.Grid(row: 0),
 
@@ -49,9 +52,9 @@ public sealed partial class MainPage : Page
                         Children =
                         {
                             new Button { Content = "Send" }
-                                .Command(() => viewModel.SendCommand),
+                                .Command(() => vm.SendCommand),
                             new Button { Content = "Cancel" }
-                                .Command(() => viewModel.CancelCommand)
+                                .Command(() => vm.CancelCommand)
                         }
                     }.Grid(row: 1)
                 }

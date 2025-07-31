@@ -1,7 +1,8 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
-namespace Sentry.CrashReporter.Models;
+namespace Sentry.CrashReporter.ViewModels;
 
 public class MainPageViewModel : INotifyPropertyChanged
 {
@@ -32,8 +33,8 @@ public class MainPageViewModel : INotifyPropertyChanged
 
     public MainPageViewModel()
     {
-        SendCommand = new RelayCommand(_ => Send(), _ => CanSend());
-        CancelCommand = new RelayCommand(_ => Cancel());
+        SendCommand = new RelayCommand(Send, CanSend);
+        CancelCommand = new RelayCommand(Cancel);
     }
 
     private void Send()

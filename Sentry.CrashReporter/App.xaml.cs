@@ -1,3 +1,4 @@
+using Sentry.CrashReporter.Views;
 using Uno.Resizetizer;
 
 namespace Sentry.CrashReporter;
