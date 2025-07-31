@@ -1,11 +1,13 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Sentry.CrashReporter.Services;
 using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
 namespace Sentry.CrashReporter.ViewModels;
 
 public class MainPageViewModel : INotifyPropertyChanged
 {
+    private readonly EnvelopeService _service;
     private string _name = string.Empty;
     private string _email = string.Empty;
     private string _description = string.Empty;
@@ -31,8 +33,9 @@ public class MainPageViewModel : INotifyPropertyChanged
     public ICommand SendCommand { get; }
     public ICommand CancelCommand { get; }
 
-    public MainPageViewModel()
+    public MainPageViewModel(EnvelopeService service)
     {
+        _service = service;
         SendCommand = new RelayCommand(Send, CanSend);
         CancelCommand = new RelayCommand(Cancel);
     }

@@ -9,7 +9,7 @@ public sealed partial class MainPage : Page
 {
     public MainPage()
     {
-        var vm = new MainPageViewModel();
+        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<MainPageViewModel>();
         this.DataContext(vm)
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid

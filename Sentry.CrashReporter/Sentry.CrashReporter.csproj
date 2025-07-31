@@ -39,4 +39,8 @@
         <DefineConstants>$(DefineConstants);USE_UITESTS</DefineConstants>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Sentry" />
+    </ItemGroup>
+
 </Project>

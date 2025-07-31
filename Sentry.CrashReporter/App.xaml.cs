@@ -1,3 +1,5 @@
+using Sentry.CrashReporter.Services;
+using Sentry.CrashReporter.ViewModels;
 using Sentry.CrashReporter.Views;
 using Uno.Resizetizer;
 
@@ -15,7 +17,7 @@ public partial class App : Application
     }
 
     protected Window? MainWindow { get; private set; }
-    protected IHost? Host { get; private set; }
+    public IHost? Host { get; private set; }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -66,8 +68,8 @@ public partial class App : Application
                 )
                 .ConfigureServices((context, services) =>
                 {
-                    // TODO: Register your services
-                    //services.AddSingleton<IMyService, MyService>();
+                    services.AddSingleton<EnvelopeService>();
+                    services.AddTransient<MainPageViewModel>();
                 })
             );
         MainWindow = builder.Window;
@@ -100,5 +102,12 @@ public partial class App : Application
 
         // Ensure the current window is active
         MainWindow.Activate();
+
+        // Load the envelope
+        if (!string.IsNullOrWhiteSpace(args.Arguments))
+        {
+            var service = Host.Services.GetRequiredService<EnvelopeService>();
+            _ = service.LoadAsync(args.Arguments);
+        }
     }
 }
