@@ -1,3 +1,5 @@
+using Windows.Graphics;
+using Windows.Graphics.Display;
 using Sentry.CrashReporter.Services;
 using Sentry.CrashReporter.ViewModels;
 using Sentry.CrashReporter.Views;
@@ -73,6 +75,9 @@ public partial class App : Application
                 })
             );
         MainWindow = builder.Window;
+
+        var scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
+        MainWindow.AppWindow.Resize(new SizeInt32 { Width = (int)Math.Round(800 * scale), Height = (int)Math.Round(600 * scale) });
 
 #if DEBUG
         MainWindow.UseStudio();
