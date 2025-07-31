@@ -12,7 +12,6 @@ public sealed partial class FeedbackView : Page
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid
             {
-                Padding = new Thickness(16),
                 RowSpacing = 16,
                 RowDefinitions =
                 {
@@ -24,9 +23,6 @@ public sealed partial class FeedbackView : Page
                 },
                 Children =
                 {
-                    Header()
-                        .Grid(row: 0),
-
                     new FormField { Title = "Name" }
                         .TextBox(tb =>
                         {
@@ -56,42 +52,24 @@ public sealed partial class FeedbackView : Page
                         .VerticalAlignment(VerticalAlignment.Stretch)
                         .Grid(row: 3),
 
-                    Footer(vm)
+                    new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalAlignment = HorizontalAlignment.Right,
+                            Spacing = 8,
+                            Children =
+                            {
+                                new Button { Content = "Cancel" }
+                                    .Command(vm.CancelCommand)
+                                    .Background(new SolidColorBrush(Colors.Transparent)),
+                                new Button { Content = "Submit" }
+                                    .Command(vm.SubmitCommand)
+                                    .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush"))
+                                    .Foreground(new SolidColorBrush(Colors.White))
+                            }
+                        }
                         .Grid(row: 4)
                 }
             });
-    }
-
-    private static UIElement Header()
-    {
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Children =
-            {
-                new Image { Source = "ms-appx:///Assets/SentryGlyph.png", Width = 96, Height = 88 },
-            }
-        }.Grid(row: 0);
-    }
-
-    private static UIElement Footer(FeedbackViewModel vm)
-    {
-        return new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            Spacing = 8,
-            Children =
-            {
-                new Button { Content = "Cancel" }
-                    .Command(vm.CancelCommand)
-                    .Background(new SolidColorBrush(Colors.Transparent)),
-                new Button { Content = "Submit" }
-                    .Command(vm.SubmitCommand)
-                    .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush"))
-                    .Foreground(new SolidColorBrush(Colors.White))
-            }
-        }.Grid(row: 4);
     }
 }

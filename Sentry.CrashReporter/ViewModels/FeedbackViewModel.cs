@@ -88,11 +88,11 @@ public class FeedbackViewModel : INotifyPropertyChanged
             });
         };
 
-        service.OnEvent += @event =>
+        service.OnEvent += e =>
         {
-            Name = @event?.User.Username ?? string.Empty;
-            Email = @event?.User.Email ?? string.Empty;
-            EventId = @event?.EventId;
+            Name = e?.User.Username ?? string.Empty;
+            Email = e?.User.Email ?? string.Empty;
+            EventId = e?.EventId;
         };
     }
 
