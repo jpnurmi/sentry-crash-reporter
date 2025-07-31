@@ -14,36 +14,34 @@ public sealed partial class MainPage : Page
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid
             {
+                Padding = new Thickness(16),
+                RowSpacing = 16,
                 RowDefinitions =
                 {
                     new RowDefinition { Height = GridLength.Auto },
                     new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+                    new RowDefinition { Height = GridLength.Auto },
                 },
                 Children =
                 {
-                    new StackPanel
-                    {
-                        Orientation = Orientation.Vertical,
-                        Padding = new Thickness(16),
-                        Spacing = 16,
-                        Children =
+                    new FormField { Title = "Name" }
+                        .Text(x => x.Binding(() => vm.Name).TwoWay())
+                        .Grid(row: 0),
+                    new FormField { Title = "Email" }
+                        .Text(x => x.Binding(() => vm.Email).TwoWay())
+                        .Grid(row: 1),
+                    new FormField { Title = "Description" }
+                        .TextBox(tb =>
                         {
-                            new FormField { Title = "Name" }
-                                .Text(x => x.Binding(() => vm.Name).TwoWay()),
-                            new FormField { Title = "Email" }
-                                .Text(x => x.Binding(() => vm.Email).TwoWay()),
-                            new FormField { Title = "Description" }
-                                .TextBox(tb =>
-                                {
-                                    tb.Text(x => x.Binding(() => vm.Description).TwoWay());
-                                    tb.AcceptsReturn = true;
-                                    tb.Height = 100;
-                                    tb.TextWrapping = TextWrapping.Wrap;
-                                }),
-                        },
-                    }.Grid(row: 0),
-
+                            tb.Text(x => x.Binding(() => vm.Description).TwoWay());
+                            tb.AcceptsReturn = true;
+                            tb.Height = double.NaN;
+                            tb.VerticalAlignment = VerticalAlignment.Stretch;
+                            tb.TextWrapping = TextWrapping.Wrap;
+                        })
+                        .VerticalAlignment(VerticalAlignment.Stretch)
+                        .Grid(row: 2),
                     new StackPanel
                     {
                         Orientation = Orientation.Horizontal,
@@ -56,7 +54,7 @@ public sealed partial class MainPage : Page
                             new Button { Content = "Submit" }
                                 .Command(vm.SubmitCommand)
                         }
-                    }.Grid(row: 1)
+                    }.Grid(row: 3)
                 }
             });
     }
