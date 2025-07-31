@@ -51,10 +51,10 @@ public sealed partial class MainPage : Page
                         Spacing = 8,
                         Children =
                         {
-                            new Button { Content = "Send" }
-                                .Command(() => vm.SendCommand),
                             new Button { Content = "Cancel" }
-                                .Command(() => vm.CancelCommand)
+                                .Command(vm.CancelCommand),
+                            new Button { Content = "Submit" }
+                                .Command(vm.SubmitCommand)
                         }
                     }.Grid(row: 1)
                 }
