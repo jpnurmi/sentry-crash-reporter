@@ -10,36 +10,34 @@ public sealed partial class FeedbackView : Page
         var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<FeedbackViewModel>();
         this.DataContext(vm)
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
-            .Content(new Grid
-            {
-                RowSpacing = 16,
-                RowDefinitions =
-                {
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = GridLength.Auto },
-                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-                    new RowDefinition { Height = GridLength.Auto },
-                },
-                Children =
-                {
-                    new FormField { Title = "Name" }
+            .Content(new Grid()
+                .RowSpacing(16)
+                .RowDefinitions(
+                    new RowDefinition().Height(GridLength.Auto),
+                    new RowDefinition().Height(GridLength.Auto),
+                    new RowDefinition().Height(GridLength.Auto),
+                    new RowDefinition().Height(new GridLength(1, GridUnitType.Star)),
+                    new RowDefinition().Height(GridLength.Auto)
+                )
+                .Children(
+                    new FormField()
+                        .Title("Name")
                         .TextBox(tb =>
                         {
                             tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
                             tb.Text(x => x.Binding(() => vm.Name).TwoWay());
                         })
                         .Grid(row: 1),
-
-                    new FormField { Title = "Email" }
+                    new FormField()
+                        .Title("Email")
                         .TextBox(tb =>
                         {
                             tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
                             tb.Text(x => x.Binding(() => vm.Email).TwoWay());
                         })
                         .Grid(row: 2),
-
-                    new FormField { Title = "Description" }
+                    new FormField()
+                        .Title("Description")
                         .TextBox(tb =>
                         {
                             tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
@@ -51,25 +49,21 @@ public sealed partial class FeedbackView : Page
                         })
                         .VerticalAlignment(VerticalAlignment.Stretch)
                         .Grid(row: 3),
-
-                    new StackPanel
-                        {
-                            Orientation = Orientation.Horizontal,
-                            HorizontalAlignment = HorizontalAlignment.Right,
-                            Spacing = 8,
-                            Children =
-                            {
-                                new Button { Content = "Cancel" }
-                                    .Command(vm.CancelCommand)
-                                    .Background(new SolidColorBrush(Colors.Transparent)),
-                                new Button { Content = "Submit" }
-                                    .Command(vm.SubmitCommand)
-                                    .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush"))
-                                    .Foreground(new SolidColorBrush(Colors.White))
-                            }
-                        }
+                    new StackPanel()
+                        .Orientation(Orientation.Horizontal)
+                        .HorizontalAlignment(HorizontalAlignment.Right)
+                        .Spacing(8)
+                        .Children(
+                            new Button { Content = "Cancel" }
+                                .Command(vm.CancelCommand)
+                                .Background(Colors.Transparent),
+                            new Button { Content = "Submit" }
+                                .Command(vm.SubmitCommand)
+                                .Foreground(Colors.White)
+                                .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush"))
+                        )
                         .Grid(row: 4)
-                }
-            });
+                )
+            );
     }
 }
