@@ -58,6 +58,7 @@ public sealed class EnvelopeView : Page
                                         new Expander
                                         {
                                             HorizontalAlignment = HorizontalAlignment.Stretch,
+                                            HorizontalContentAlignment = HorizontalAlignment.Stretch,
                                             Header = new TextBox
                                                 {
                                                     AcceptsReturn = true,
@@ -73,8 +74,6 @@ public sealed class EnvelopeView : Page
                                                     BorderBrush = Colors.Transparent,
                                                     BorderThickness = new Thickness(0),
                                                     CornerRadius = 0,
-                                                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                                                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
                                                     IsReadOnly = true,
                                                 }
                                                 .Text(x => x.Binding("Payload")),
