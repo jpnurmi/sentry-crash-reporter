@@ -27,9 +27,10 @@ public class FeedbackViewModel : INotifyPropertyChanged
             Envelope = envelope;
             SubmitCommand.NotifyCanExecuteChanged();
 
-            var user = envelope.TryGetEvent()?.TryGetPayload("user");
-            Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
-            Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
+            // TODO: do we want to pre-fill the user information?
+            // var user = envelope.TryGetEvent()?.TryGetPayload("user");
+            // Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
+            // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
         };
     }
 
