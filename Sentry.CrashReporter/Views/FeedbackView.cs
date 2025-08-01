@@ -22,31 +22,20 @@ public sealed partial class FeedbackView : Page
                 .Children(
                     new FormField()
                         .Title("Name")
-                        .TextBox(tb =>
-                        {
-                            tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
-                            tb.Text(x => x.Binding(() => vm.Name).TwoWay());
-                        })
+                        .IsEnabled(x => x.Binding(() => vm.CanGiveFeedback))
+                        .Text(x => x.Binding(() => vm.Name).TwoWay())
                         .Grid(row: 1),
                     new FormField()
                         .Title("Email")
-                        .TextBox(tb =>
-                        {
-                            tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
-                            tb.Text(x => x.Binding(() => vm.Email).TwoWay());
-                        })
+                        .IsEnabled(x => x.Binding(() => vm.CanGiveFeedback))
+                        .Text(x => x.Binding(() => vm.Email).TwoWay())
                         .Grid(row: 2),
                     new FormField()
                         .Title("Description")
-                        .TextBox(tb =>
-                        {
-                            tb.IsEnabled(x => x.Binding(() => vm.CanGiveFeedback));
-                            tb.Text(x => x.Binding(() => vm.Description).TwoWay());
-                            tb.AcceptsReturn = true;
-                            tb.Height = double.NaN;
-                            tb.VerticalAlignment = VerticalAlignment.Stretch;
-                            tb.TextWrapping = TextWrapping.Wrap;
-                        })
+                        .AcceptsReturn(true)
+                        .TextWrapping(TextWrapping.Wrap)
+                        .Text(x => x.Binding(() => vm.Description).TwoWay())
+                        .IsEnabled(x => x.Binding(() => vm.CanGiveFeedback))
                         .VerticalAlignment(VerticalAlignment.Stretch)
                         .Grid(row: 3),
                     new StackPanel()
