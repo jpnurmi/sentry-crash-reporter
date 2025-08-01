@@ -1,3 +1,4 @@
+using Sentry.CrashReporter.Extensions;
 using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
@@ -34,11 +35,7 @@ public sealed class EnvelopeView : Page
                         .Content(new StackPanel()
                             .Children(
                                 new TextBox()
-                                    .AcceptsReturn(true)
-                                    .BorderBrush(Colors.Transparent)
-                                    .BorderThickness(new Thickness(0))
-                                    .CornerRadius(0)
-                                    .IsReadOnly(true)
+                                    .AsCodeBox()
                                     .Text(x => x.Binding(() => vm.Header)),
                                 new ItemsControl()
                                     .ItemsSource(x => x.Binding(() => vm.Items))
@@ -47,19 +44,11 @@ public sealed class EnvelopeView : Page
                                             .HorizontalAlignment(HorizontalAlignment.Stretch)
                                             .HorizontalContentAlignment(HorizontalAlignment.Stretch)
                                             .Header(new TextBox()
-                                                .AcceptsReturn(true)
-                                                .BorderBrush(Colors.Transparent)
-                                                .BorderThickness(new Thickness(0))
-                                                .CornerRadius(0)
-                                                .IsReadOnly(true)
+                                                .AsCodeBox()
                                                 .Text(x => x.Binding("Header"))
                                             )
                                             .Content(new TextBox()
-                                                .AcceptsReturn(true)
-                                                .BorderBrush(Colors.Transparent)
-                                                .BorderThickness(new Thickness(0))
-                                                .CornerRadius(0)
-                                                .IsReadOnly(true)
+                                                .AsCodeBox()
                                                 .Text(x => x.Binding("Payload"))
                                             )
                                     )
