@@ -3,19 +3,18 @@ using Windows.Graphics.Display;
 using Sentry.CrashReporter.Services;
 using Sentry.CrashReporter.ViewModels;
 using Sentry.CrashReporter.Views;
-using Uno.Resizetizer;
 
 namespace Sentry.CrashReporter;
 
 public partial class App : Application
 {
     /// <summary>
-    /// Initializes the singleton application object. This is the first line of authored code
-    /// executed, and as such is the logical equivalent of main() or WinMain().
+    ///     Initializes the singleton application object. This is the first line of authored code
+    ///     executed, and as such is the logical equivalent of main() or WinMain().
     /// </summary>
     public App()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     public Window? MainWindow { get; private set; }
@@ -36,7 +35,7 @@ public partial class App : Application
                 // Switch to Development environment when running in DEBUG
                 .UseEnvironment(Environments.Development)
 #endif
-                .UseLogging(configure: (context, logBuilder) =>
+                .UseLogging((context, logBuilder) =>
                 {
                     // Configure log levels for different categories of logging
                     logBuilder
@@ -62,7 +61,7 @@ public partial class App : Application
                     //logBuilder.HotReloadCoreLogLevel(LogLevel.Information);
                     //// Debug JS interop
                     //logBuilder.WebAssemblyLogLevel(LogLevel.Debug);
-                }, enableUnoLogging: true)
+                }, true)
                 .UseConfiguration(configure: configBuilder =>
                     configBuilder
                         .EmbeddedSource<App>()
@@ -70,6 +69,8 @@ public partial class App : Application
                 )
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddSingleton<HttpClient>();
+                    services.AddTransient<SentryClient>();
                     services.AddSingleton<EnvelopeService>();
                     services.AddTransient<EventViewModel>();
                     services.AddTransient<FeedbackViewModel>();
@@ -80,7 +81,8 @@ public partial class App : Application
         MainWindow.Title = "Sentry Crash Reporter";
 
         var scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
-        MainWindow.AppWindow.Resize(new SizeInt32 { Width = (int)Math.Round(800 * scale), Height = (int)Math.Round(600 * scale) });
+        MainWindow.AppWindow.Resize(new SizeInt32
+            { Width = (int)Math.Round(800 * scale), Height = (int)Math.Round(600 * scale) });
 
 #if DEBUG
         MainWindow.UseStudio();

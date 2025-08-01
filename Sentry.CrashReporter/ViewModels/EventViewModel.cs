@@ -6,26 +6,38 @@ namespace Sentry.CrashReporter.ViewModels;
 
 public class EventViewModel : INotifyPropertyChanged
 {
-    private SentryEvent? _event;
+    private EnvelopeItem? _event;
+    private string? _eventId;
+    private string? _release;
 
-    public string? EventId => _event?.EventId.ToString();
-    public string? Release => _event?.Release;
+    public string? EventId
+    {
+        get => _eventId;
+        private set { _eventId = value; OnPropertyChanged(); }
+    }
 
-    public SentryEvent? Event
+    public string? Release
+    {
+        get => _release;
+        private set { _release = value; OnPropertyChanged(); }
+    }
+
+    public EnvelopeItem? Event
     {
         get => _event;
         private set
         {
             _event = value;
+            var payload = value?.TryGetPayload();
+            EventId = payload?.TryGetProperty("event_id", out var eventId) == true ? eventId.GetString(): null;
+            Release = payload?.TryGetProperty("release", out var release) == true ? release.GetString() : null;
             OnPropertyChanged();
-            OnPropertyChanged(nameof(EventId));
-            OnPropertyChanged(nameof(Release));
         }
     }
 
     public EventViewModel(EnvelopeService service)
     {
-        service.OnEvent += e => Event = e;
+        service.OnLoaded += e => Event = e.TryGetEvent();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

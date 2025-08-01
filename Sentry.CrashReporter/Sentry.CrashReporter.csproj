@@ -48,8 +48,4 @@
         <Content Include="Assets\SentryGlyph.light.scale-200.png" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Sentry" />
-    </ItemGroup>
-
 </Project>
