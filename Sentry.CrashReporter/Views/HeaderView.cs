@@ -2,11 +2,11 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed partial class EventView : Page
+public sealed partial class HeaderView : Page
 {
-    public EventView()
+    public HeaderView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<EventViewModel>();
+        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<HeaderViewModel>();
         this.DataContext(vm)
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid
@@ -34,7 +34,21 @@ public sealed partial class EventView : Page
                         }
                     }.Grid(0),
 
-                    new Image { Source = "ms-appx:///Assets/SentryGlyph.png", Width = 96, Height = 88 }
+                    new Button
+                        {
+                            Content = new Image
+                                { Source = "ms-appx:///Assets/SentryGlyph.png", Width = 96, Height = 88 }
+                        }
+                        .Background(Colors.Transparent)
+                        .BorderBrush(Colors.Transparent)
+                        .Resources(r => r
+                            .Add("ButtonBackgroundPointerOver", new SolidColorBrush(Colors.Transparent))
+                            .Add("ButtonBackgroundPressed", new SolidColorBrush(Colors.Transparent))
+                            .Add("ButtonBorderBrushPointerOver", new SolidColorBrush(Colors.Transparent))
+                            .Add("ButtonBorderBrushPressed", new SolidColorBrush(Colors.Transparent))
+                        )
+                        .Command(
+                            new RelayCommand(() => (Window.Current?.Content as Frame)?.Navigate(typeof(EnvelopeView))))
                         .Grid(1)
                 }
             });

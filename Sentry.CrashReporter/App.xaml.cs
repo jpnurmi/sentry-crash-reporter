@@ -70,10 +70,11 @@ public partial class App : Application
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<HttpClient>();
-                    services.AddTransient<SentryClient>();
+                    services.AddSingleton<SentryClient>();
                     services.AddSingleton<EnvelopeService>();
-                    services.AddTransient<EventViewModel>();
-                    services.AddTransient<FeedbackViewModel>();
+                    services.AddSingleton<HeaderViewModel>();
+                    services.AddSingleton<EnvelopeViewModel>();
+                    services.AddSingleton<FeedbackViewModel>();
                 })
             );
         MainWindow = builder.Window;

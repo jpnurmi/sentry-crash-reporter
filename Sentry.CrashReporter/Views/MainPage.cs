@@ -1,6 +1,8 @@
+using Microsoft.UI.Windowing;
+
 namespace Sentry.CrashReporter.Views;
 
-public sealed partial class MainPage : Page
+public sealed class MainPage : Page
 {
     public MainPage()
     {
@@ -16,7 +18,7 @@ public sealed partial class MainPage : Page
                 },
                 Children =
                 {
-                    new EventView().Grid(row: 0),
+                    new HeaderView().Grid(row: 0),
                     new FeedbackView().Grid(row: 1)
                 }
             });
