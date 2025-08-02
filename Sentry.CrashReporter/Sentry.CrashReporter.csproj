@@ -46,6 +46,12 @@
         <Content Include="Assets\SentryGlyph.dark.scale-200.png" />
         <Content Include="Assets/SentryGlyph.light.png" />
         <Content Include="Assets\SentryGlyph.light.scale-200.png" />
+        <Content Include="Assets\Fonts\SourceCodePro\SourceCodePro-Regular.ttf">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <None Include="Info.plist">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>
