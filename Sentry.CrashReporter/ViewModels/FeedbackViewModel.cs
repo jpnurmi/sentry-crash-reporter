@@ -15,23 +15,26 @@ public class FeedbackViewModel : INotifyPropertyChanged
     private string? _eventId;
     private string _name = string.Empty;
 
-    public FeedbackViewModel(EnvelopeService service, SentryClient client)
+    public FeedbackViewModel(EnvelopeService service, SentryClient client, IOptions<AppConfig> config)
     {
         _client = client;
 
         SubmitCommand = new RelayCommand(Submit, CanSubmit);
         CancelCommand = new RelayCommand(Cancel);
 
-        service.OnLoaded += envelope =>
+        if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
-            Envelope = envelope;
-            SubmitCommand.NotifyCanExecuteChanged();
+            Task.Run(async () =>
+            {
+                Envelope = await service.LoadAsync(config.Value.FilePath);
+                SubmitCommand.NotifyCanExecuteChanged();
 
-            // TODO: do we want to pre-fill the user information?
-            // var user = envelope.TryGetEvent()?.TryGetPayload("user");
-            // Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
-            // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
-        };
+                // TODO: do we want to pre-fill the user information?
+                // var user = envelope.TryGetEvent()?.TryGetPayload("user");
+                // Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
+                // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
+            });
+        }
     }
 
     private Envelope? Envelope

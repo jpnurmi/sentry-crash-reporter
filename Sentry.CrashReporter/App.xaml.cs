@@ -65,6 +65,7 @@ public partial class App : Application
                 .UseConfiguration(configure: configBuilder =>
                     configBuilder
                         .EmbeddedSource<App>()
+                        .WithConfigurationSectionFromEntity(new AppConfig { FilePath = args.Arguments })
                         .Section<AppConfig>()
                 )
                 .ConfigureServices((context, services) =>
@@ -113,12 +114,5 @@ public partial class App : Application
 
         // Ensure the current window is active
         MainWindow.Activate();
-
-        // Load the envelope
-        if (!string.IsNullOrWhiteSpace(args.Arguments))
-        {
-            var service = Host.Services.GetRequiredService<EnvelopeService>();
-            _ = service.LoadAsync(args.Arguments);
-        }
     }
 }

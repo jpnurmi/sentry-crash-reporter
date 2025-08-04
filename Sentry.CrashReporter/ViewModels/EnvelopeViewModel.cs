@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json;
 using Sentry.CrashReporter.Services;
-using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 
 namespace Sentry.CrashReporter.ViewModels;
 
@@ -16,12 +14,11 @@ public class EnvelopeViewModel : INotifyPropertyChanged
     private string? _header;
     private List<FormattedEnvelopeItem>? _items;
 
-    public EnvelopeViewModel(EnvelopeService service)
+    public EnvelopeViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {
-        Envelope = service.Envelope;
-        if (Envelope is null)
+        if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
-            service.OnLoaded += envelope => { Envelope = envelope; };
+            Task.Run(async () => Envelope = await service.LoadAsync(config.Value.FilePath));
         }
     }
 

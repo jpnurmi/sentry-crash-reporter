@@ -1,80 +1,50 @@
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 namespace Sentry.CrashReporter.Services;
 
-public class EnvelopeService : INotifyPropertyChanged
+public class EnvelopeService
 {
-    private Envelope? _envelope;
-    private string? _filePath;
-    private bool _isLoading;
-
-    public Envelope? Envelope
-    {
-        get => _envelope;
-        private set
-        {
-            _envelope = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public string? FilePath
-    {
-        get => _filePath;
-        private set
-        {
-            _filePath = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool IsLoading
-    {
-        get => _isLoading;
-        private set
-        {
-            _isLoading = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public Action<Envelope>? OnLoaded { get; set; }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public async Task LoadAsync(string filePath, CancellationToken cancellationToken = default)
+    private Envelope? _cachedEnvelope;
+    private string? _cachedHash;
+    
+    public async ValueTask<Envelope?> LoadAsync(string filePath, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(filePath))
         {
-            return;
+            return null;
         }
 
-        FilePath = filePath;
-        IsLoading = true;
+        var fileHash = await ComputeFileHashAsync(filePath, cancellationToken);
+        if (fileHash == _cachedHash && _cachedEnvelope != null)
+        {
+            return _cachedEnvelope;
+        }
 
         try
         {
             var stopwatch = Stopwatch.StartNew();
             await using var file = File.OpenRead(filePath);
-            Envelope = await Envelope.DeserializeAsync(file, cancellationToken);
+            var envelope = await Envelope.DeserializeAsync(file, cancellationToken);
             stopwatch.Stop();
             this.Log().LogInformation($"Loaded {filePath} in {stopwatch.ElapsedMilliseconds} ms.");
-            OnLoaded?.Invoke(Envelope);
+            _cachedEnvelope = envelope;
+            _cachedHash = fileHash;
+            return envelope;
         }
         catch (Exception ex)
         {
             this.Log().LogError(ex, $"Failed to load envelope from {filePath}");
         }
-        finally
-        {
-            IsLoading = false;
-        }
-    }
 
-    private void OnPropertyChanged([CallerMemberName] string? name = null)
+        return null;
+    }
+    
+    private async Task<string> ComputeFileHashAsync(string filePath, CancellationToken cancellationToken)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        await using var stream = File.OpenRead(filePath);
+        using var sha256 = SHA256.Create();
+        var hash = await sha256.ComputeHashAsync(stream, cancellationToken);
+        return Convert.ToHexString(hash);
     }
 }

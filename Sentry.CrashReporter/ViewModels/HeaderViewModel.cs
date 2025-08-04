@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Sentry.CrashReporter.Services;
-using Sentry.CrashReporter.Views;
 
 namespace Sentry.CrashReporter.ViewModels;
 
@@ -11,9 +10,12 @@ public class HeaderViewModel : INotifyPropertyChanged
     private string? _eventId;
     private string? _release;
 
-    public HeaderViewModel(EnvelopeService service)
+    public HeaderViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {
-        service.OnLoaded += e => Event = e.TryGetEvent();
+        if (!string.IsNullOrEmpty(config.Value?.FilePath))
+        {
+            Task.Run(async () => Event = (await service.LoadAsync(config.Value.FilePath))?.TryGetEvent());
+        }
     }
 
     public string? EventId
