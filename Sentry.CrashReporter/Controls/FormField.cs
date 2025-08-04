@@ -5,8 +5,8 @@ public class FormField : Grid
     public FormField()
     {
         RowSpacing = 4;
-        RowDefinitions.Add(new RowDefinition().Height(GridLength.Auto));
-        RowDefinitions.Add(new RowDefinition().Height(new GridLength(1, GridUnitType.Star)));
+        RowDefinitions.Add("Auto");
+        RowDefinitions.Add("*");
 
         var titleBlock = new TextBlock();
         Children.Add(titleBlock);

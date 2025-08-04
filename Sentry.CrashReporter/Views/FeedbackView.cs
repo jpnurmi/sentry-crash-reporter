@@ -12,13 +12,7 @@ public sealed partial class FeedbackView : Page
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid()
                 .RowSpacing(16)
-                .RowDefinitions(
-                    new RowDefinition().Height(GridLength.Auto),
-                    new RowDefinition().Height(GridLength.Auto),
-                    new RowDefinition().Height(GridLength.Auto),
-                    new RowDefinition().Height(new GridLength(1, GridUnitType.Star)),
-                    new RowDefinition().Height(GridLength.Auto)
-                )
+                .RowDefinitions("Auto,Auto,Auto,*,Auto")
                 .Children(
                     new FormField()
                         .Title("Name")
