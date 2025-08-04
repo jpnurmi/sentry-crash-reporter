@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Sentry.CrashReporter.Services;
 
@@ -7,11 +5,14 @@ namespace Sentry.CrashReporter.ViewModels;
 
 public record FormattedEnvelopeItem(string Header, string Payload);
 
-public class EnvelopeViewModel : INotifyPropertyChanged
+public partial class EnvelopeViewModel : ObservableObject
 {
     private Envelope? _envelope;
+    [ObservableProperty]
     private string? _eventId;
+    [ObservableProperty]
     private string? _header;
+    [ObservableProperty]
     private List<FormattedEnvelopeItem>? _items;
 
     public EnvelopeViewModel(EnvelopeService service, IOptions<AppConfig> config)
@@ -22,34 +23,13 @@ public class EnvelopeViewModel : INotifyPropertyChanged
         }
     }
 
-    public string? Header
-    {
-        get => _header;
-        private set
-        {
-            _header = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public List<FormattedEnvelopeItem>? Items
-    {
-        get => _items;
-        private set
-        {
-            _items = value;
-            OnPropertyChanged();
-        }
-    }
-
     public Envelope? Envelope
     {
         get => _envelope;
         private set
         {
-            _envelope = value;
+            SetProperty(ref _envelope, value);
             EventId = value?.TryGetEventId();
-            OnPropertyChanged();
 
             var options = new JsonSerializerOptions { WriteIndented = true };
             Header = JsonSerializer.Serialize(value?.Header, options);
@@ -64,22 +44,5 @@ public class EnvelopeViewModel : INotifyPropertyChanged
             }
             Items = items;
         }
-    }
-
-    public string? EventId
-    {
-        get => _eventId;
-        private set
-        {
-            _eventId = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
