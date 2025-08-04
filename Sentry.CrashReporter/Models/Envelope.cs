@@ -47,38 +47,37 @@ public sealed class EnvelopeItem
     }
 
     internal static async Task<EnvelopeItem> DeserializeAsync(
-        StreamReader reader, CancellationToken cancellationToken = default)
+        Stream stream, CancellationToken cancellationToken = default)
     {
-        var buffer = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
+        var buffer = await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
                      throw new InvalidOperationException("Envelope item is malformed.");
         var doc = JsonDocument.Parse(buffer) ?? throw new InvalidOperationException("Envelope item is malformed.");
 
         var header = doc.RootElement;
         if (header.TryGetProperty("length", out var length))
         {
-            var payload = new char[length.GetUInt64()];
+            var payload = new byte[length.GetUInt64()];
             var pos = 0;
             while (pos < payload.Length)
             {
-                var read = await reader.ReadBlockAsync(payload, pos, payload.Length - pos).ConfigureAwait(false);
+                var read = await stream.ReadAsync(payload, pos, payload.Length - pos, cancellationToken).ConfigureAwait(false);
                 if (read == 0)
                 {
                     throw new InvalidOperationException("Envelope item payload is malformed.");
                 }
-
                 pos += read;
             }
 
-            while (reader.Peek() == '\n')
+            while (await stream.PeekAsync(cancellationToken) == '\n')
             {
-                await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+                await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            return new EnvelopeItem(header, Encoding.UTF8.GetBytes(payload, 0, payload.Length));
+            return new EnvelopeItem(header, payload);
         }
         else
         {
-            var payload = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
+            var payload = await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
                           throw new InvalidOperationException("Envelope item payload is malformed.");
             return new EnvelopeItem(header, Encoding.UTF8.GetBytes(payload));
         }
@@ -120,7 +119,7 @@ public sealed class Envelope
         Stream stream,
         CancellationToken cancellationToken = default)
     {
-        using var writer = new StreamWriter(stream, leaveOpen: true);
+        await using var writer = new StreamWriter(stream, leaveOpen: true);
 
         var json = Header.GetRawText();
         await writer.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
@@ -135,17 +134,15 @@ public sealed class Envelope
         Stream stream,
         CancellationToken cancellationToken = default)
     {
-        using var reader = new StreamReader(stream, leaveOpen: true);
-
-        var buffer = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
+        var buffer = await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
                      throw new InvalidOperationException("Envelope header is malformed.");
         var header = JsonDocument.Parse(buffer)?.RootElement ??
                      throw new InvalidOperationException("Envelope header is malformed.");
 
         var items = new List<EnvelopeItem>();
-        while (!reader.EndOfStream)
+        while (stream.Position < stream.Length)
         {
-            var item = await EnvelopeItem.DeserializeAsync(reader, cancellationToken).ConfigureAwait(false);
+            var item = await EnvelopeItem.DeserializeAsync(stream, cancellationToken).ConfigureAwait(false);
             items.Add(item);
         }
 
@@ -165,5 +162,33 @@ public sealed class Envelope
         }
 
         return new Envelope(envelopeHeader, envelopeItems);
+    }
+}
+
+internal static class StreamExtensions
+{
+    public static async Task<string?> ReadLineAsync(this Stream stream, CancellationToken cancellationToken = default)
+    {
+        var line = new List<byte>();
+        var buffer = new byte[1];
+        while (true)
+        {
+            var read = await stream.ReadAsync(buffer, 0, 1, cancellationToken).ConfigureAwait(false);
+            if (read == 0 || buffer[0] == '\n')
+            {
+                break;
+            }
+            line.Add(buffer[0]);
+        }
+        return Encoding.UTF8.GetString(line.ToArray());
+    }
+
+    public static async Task<int> PeekAsync(this Stream stream, CancellationToken cancellationToken = default)
+    {
+        var pos = stream.Position;
+        var buffer = new byte[1];
+        var read = await stream.ReadAsync(buffer, 0, 1, cancellationToken).ConfigureAwait(false);
+        stream.Position = pos;
+        return read == 0 ? -1 : buffer[0];
     }
 }
