@@ -38,9 +38,16 @@ public partial class EnvelopeViewModel : ObservableObject
             foreach (var item in Envelope?.Items ?? [])
             {
                 var header = JsonSerializer.Serialize(item.Header, options);
-                var json = JsonDocument.Parse(item.Payload)?.RootElement;
-                var payload = JsonSerializer.Serialize(json, options);
-                items.Add(new FormattedEnvelopeItem(header, payload));
+                try
+                {
+                    var json = JsonDocument.Parse(item.Payload)?.RootElement;
+                    var payload = JsonSerializer.Serialize(json, options);
+                    items.Add(new FormattedEnvelopeItem(header, payload));
+                } catch (JsonException ex)
+                {
+                    var hex = Convert.ToHexString(item.Payload);
+                    items.Add(new FormattedEnvelopeItem(header, hex));
+                }
             }
             Items = items;
         }
