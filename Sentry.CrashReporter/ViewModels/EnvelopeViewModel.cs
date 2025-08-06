@@ -45,7 +45,12 @@ public partial class EnvelopeViewModel : ObservableObject
                     items.Add(new FormattedEnvelopeItem(header, payload));
                 } catch (JsonException ex)
                 {
-                    var hex = Convert.ToHexString(item.Payload);
+                    const int maxLen = 32;
+                    var hex = BitConverter.ToString(item.Payload.Take(maxLen).ToArray()).Replace("-", " ");
+                    if (item.Payload.Length > maxLen)
+                    {
+                        hex += "...";
+                    }
                     items.Add(new FormattedEnvelopeItem(header, hex));
                 }
             }
