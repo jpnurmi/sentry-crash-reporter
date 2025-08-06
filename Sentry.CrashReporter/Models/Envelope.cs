@@ -20,13 +20,19 @@ public sealed class EnvelopeItem(JsonElement header, byte[] payload)
 
     public JsonElement? TryGetPayload(string? key = null)
     {
-        var json = JsonDocument.Parse(Payload).RootElement;
-        if (string.IsNullOrEmpty(key))
+        try
         {
-            return json;
-        }
+            var json = JsonDocument.Parse(Payload).RootElement;
+            if (string.IsNullOrEmpty(key))
+            {
+                return json;
+            }
 
-        return json.TryGetProperty(key, out var value) ? value : null;
+            return json.TryGetProperty(key, out var value) ? value : null;
+        } catch (JsonException)
+        {
+            return null;
+        }
     }
 
     internal async Task SerializeAsync(
@@ -61,12 +67,6 @@ public sealed class EnvelopeItem(JsonElement header, byte[] payload)
                 }
                 pos += read;
             }
-
-            while (await stream.PeekAsync(cancellationToken) == '\n')
-            {
-                await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false);
-            }
-
             return new EnvelopeItem(header, payload);
         }
         else
@@ -131,6 +131,7 @@ public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> ite
         {
             var item = await EnvelopeItem.DeserializeAsync(stream, cancellationToken).ConfigureAwait(false);
             items.Add(item);
+            await stream.ConsumeEmptyLinesAsync(cancellationToken);
         }
 
         return new Envelope(header, items);
@@ -168,6 +169,14 @@ internal static class StreamExtensions
             line.Add(buffer[0]);
         }
         return Encoding.UTF8.GetString(line.ToArray());
+    }
+
+    public static async Task ConsumeEmptyLinesAsync(this Stream stream, CancellationToken cancellationToken = default)
+    {
+        while (await stream.PeekAsync(cancellationToken) == '\n')
+        {
+            await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+        }
     }
 
     public static async Task<int> PeekAsync(this Stream stream, CancellationToken cancellationToken = default)
