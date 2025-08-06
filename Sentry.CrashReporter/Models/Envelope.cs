@@ -3,16 +3,10 @@ using System.Text.Json;
 
 namespace Sentry.CrashReporter.Models;
 
-public sealed class EnvelopeItem
+public sealed class EnvelopeItem(JsonElement header, byte[] payload)
 {
-    public EnvelopeItem(JsonElement header, byte[] payload)
-    {
-        Header = header;
-        Payload = payload;
-    }
-
-    public JsonElement Header { get; }
-    public byte[] Payload { get; }
+    public JsonElement Header { get; } = header;
+    public byte[] Payload { get; } = payload;
 
     public string? TryGetType()
     {
@@ -84,16 +78,10 @@ public sealed class EnvelopeItem
     }
 }
 
-public sealed class Envelope
+public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> items)
 {
-    public Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> items)
-    {
-        Header = header;
-        Items = items;
-    }
-
-    public JsonElement Header { get; }
-    public IReadOnlyList<EnvelopeItem> Items { get; }
+    public JsonElement Header { get; } = header;
+    public IReadOnlyList<EnvelopeItem> Items { get; } = items;
 
     public string? TryGetDsn()
     {
@@ -136,8 +124,7 @@ public sealed class Envelope
     {
         var buffer = await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
                      throw new InvalidOperationException("Envelope header is malformed.");
-        var header = JsonDocument.Parse(buffer)?.RootElement ??
-                     throw new InvalidOperationException("Envelope header is malformed.");
+        var header = JsonDocument.Parse(buffer).RootElement;
 
         var items = new List<EnvelopeItem>();
         while (stream.Position < stream.Length)
