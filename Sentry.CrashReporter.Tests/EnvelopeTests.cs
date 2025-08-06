@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Sentry.CrashReporter.Tests;
 
 public class EnvelopeTests
@@ -8,7 +10,7 @@ public class EnvelopeTests
     }
 
     [Test]
-    public void TwoItems()
+    public void ParseTwoItems()
     {
         using var file = File.OpenRead("Envelopes/two_items.envelope");
         var envelope = Envelope.DeserializeAsync(file).GetAwaiter().GetResult();
@@ -35,7 +37,7 @@ public class EnvelopeTests
     }
 
     [Test]
-    public void TwoEmptyAttachments()
+    public void ParseTwoEmptyAttachments()
     {
         using var file = File.OpenRead("Envelopes/two_empty_attachments.envelope");
         var envelope = Envelope.DeserializeAsync(file).GetAwaiter().GetResult();
@@ -56,7 +58,7 @@ public class EnvelopeTests
     }
 
     [Test]
-    public void ImplicitLength()
+    public void ParseImplicitLength()
     {
         using var file = File.OpenRead("Envelopes/implicit_length.envelope");
         var envelope = Envelope.DeserializeAsync(file).GetAwaiter().GetResult();
@@ -75,7 +77,7 @@ public class EnvelopeTests
     }
 
     [Test]
-    public void EmptyHeadersEof()
+    public void ParseEmptyHeadersEof()
     {
         using var file = File.OpenRead("Envelopes/empty_headers_eof.envelope");
         var envelope = Envelope.DeserializeAsync(file).GetAwaiter().GetResult();
@@ -88,6 +90,56 @@ public class EnvelopeTests
         session.TryGetType().Should().Be("session");
         session.TryGetHeader("length").Should().BeNull();
         session.Payload.Length.Should().Be(75);
-        session.TryGetPayload()?.ToString().Should().BeEquivalentTo("""{"started": "2020-02-07T14:16:00Z","attrs":{"release":"sentry-test@1.0.0"}}""");
+        session.TryGetPayload()?.ToString().Should()
+            .BeEquivalentTo("""{"started": "2020-02-07T14:16:00Z","attrs":{"release":"sentry-test@1.0.0"}}""");
+    }
+
+    [Test]
+    public void ParseBinaryAttachment()
+    {
+        using var file = File.OpenRead("Envelopes/binary_attachment.envelope");
+        var envelope = Envelope.DeserializeAsync(file).GetAwaiter().GetResult();
+
+        envelope.TryGetDsn().Should().BeNull();
+        envelope.TryGetEventId().Should().Be("9ec79c33ec9942ab8353589fcb2e04dc");
+        envelope.Items.Should().HaveCount(1);
+
+        var binary = envelope.Items[0];
+        binary.TryGetType().Should().Be("attachment");
+        binary.TryGetHeader("length")?.GetInt64().Should().Be(3);
+        binary.Payload.Length.Should().Be(3);
+        binary.Payload.Should().BeEquivalentTo([0xFF, 0xFE, 0xFD]);
+    }
+
+    [Test]
+    [TestCase("Envelopes/two_items.envelope")]
+    [TestCase("Envelopes/two_empty_attachments.envelope")]
+    [TestCase("Envelopes/implicit_length.envelope")]
+    [TestCase("Envelopes/empty_headers_eof.envelope")]
+    [TestCase("Envelopes/binary_attachment.envelope")]
+    public void Serialize(string filePath)
+    {
+        using var file = File.OpenRead(filePath);
+        var envelope = Envelope.DeserializeAsync(file).GetAwaiter().GetResult();
+
+        using var stream = new MemoryStream();
+        envelope.SerializeAsync(stream).GetAwaiter().GetResult();
+        stream.FlushAsync().GetAwaiter().GetResult();
+        stream.Seek(0, SeekOrigin.Begin);
+
+        const byte newLine = (byte)'\n';
+        var bytes = stream.ReadBytesAsync(CancellationToken.None).GetAwaiter().GetResult();
+        Console.WriteLine(BitConverter.ToString(bytes));
+        bytes.Should().StartWith(Encoding.UTF8.GetBytes(envelope.Header.GetRawText()).Append(newLine));
+        bytes.Should().EndWith(
+            envelope.Items
+                .SelectMany(i =>
+                    Encoding.UTF8.GetBytes(i.Header.GetRawText())
+                        .Append(newLine)
+                        .Concat(i.Payload)
+                        .Append(newLine)
+                )
+                .ToArray()
+        );
     }
 }

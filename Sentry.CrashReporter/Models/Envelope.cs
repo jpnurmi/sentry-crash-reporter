@@ -36,14 +36,13 @@ public sealed class EnvelopeItem(JsonElement header, byte[] payload)
     }
 
     internal async Task SerializeAsync(
-        StreamWriter writer,
+        Stream stream,
         CancellationToken cancellationToken = default)
     {
-        var json = Header.GetRawText();
-        await writer.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetBytes(Header.GetRawText());
+        await stream.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
 
-        var payload = Encoding.UTF8.GetString(Payload);
-        await writer.WriteLineAsync(payload.AsMemory(), cancellationToken).ConfigureAwait(false);
+        await stream.WriteLineAsync(Payload.AsMemory(), cancellationToken).ConfigureAwait(false);
     }
 
     internal static async Task<EnvelopeItem> DeserializeAsync(
@@ -107,14 +106,12 @@ public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> ite
         Stream stream,
         CancellationToken cancellationToken = default)
     {
-        await using var writer = new StreamWriter(stream, leaveOpen: true);
-
-        var json = Header.GetRawText();
-        await writer.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
+        var json = Encoding.UTF8.GetBytes(Header.GetRawText());
+        await stream.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
 
         foreach (var item in Items)
         {
-            await item.SerializeAsync(writer, cancellationToken).ConfigureAwait(false);
+            await item.SerializeAsync(stream, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -155,6 +152,8 @@ public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> ite
 
 internal static class StreamExtensions
 {
+    private const byte NewLine = (byte)'\n';
+
     public static async Task<string?> ReadLineAsync(this Stream stream, CancellationToken cancellationToken = default)
     {
         var line = new List<byte>();
@@ -162,7 +161,7 @@ internal static class StreamExtensions
         while (true)
         {
             var read = await stream.ReadAsync(buffer, 0, 1, cancellationToken).ConfigureAwait(false);
-            if (read == 0 || buffer[0] == '\n')
+            if (read == 0 || buffer[0] == NewLine)
             {
                 break;
             }
@@ -171,9 +170,15 @@ internal static class StreamExtensions
         return Encoding.UTF8.GetString(line.ToArray());
     }
 
+    public static async Task WriteLineAsync(this Stream stream, ReadOnlyMemory<byte> line, CancellationToken cancellationToken = default)
+    {
+        await stream.WriteAsync(line, cancellationToken).ConfigureAwait(false);
+        await stream.WriteAsync(new byte[] { NewLine }, cancellationToken).ConfigureAwait(false);
+    }
+
     public static async Task ConsumeEmptyLinesAsync(this Stream stream, CancellationToken cancellationToken = default)
     {
-        while (await stream.PeekAsync(cancellationToken) == '\n')
+        while (await stream.PeekAsync(cancellationToken) == NewLine)
         {
             await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false);
         }
