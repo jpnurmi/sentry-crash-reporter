@@ -21,15 +21,26 @@ public class BrandIcon : FontIcon
     {
         if (d is BrandIcon icon)
         {
-            icon.Glyph = icon.Brand?.ToLower() switch
-            {
-                "android" => "\uF17B", // fa-android
-                "linux" => "\uF17C", // fa-linux
-                "windows" => "\uF17A", // fa-windows
-                "macos" => "\uF179", // fa-apple
-                "ios" => "\uF179", // fa-apple
-                _ => null
-            } ?? string.Empty;
+            icon.UpdateIcon();
         }
+    }
+
+    private void UpdateIcon()
+    {
+        if (!DispatcherQueue.HasThreadAccess)
+        {
+            DispatcherQueue.TryEnqueue(UpdateIcon);
+            return;
+        }
+        
+        Glyph = Brand?.ToLower() switch
+        {
+            "android" => "\uF17B", // fa-android
+            "linux" => "\uF17C", // fa-linux
+            "windows" => "\uF17A", // fa-windows
+            "macos" => "\uF179", // fa-apple
+            "ios" => "\uF179", // fa-apple
+            _ => null
+        } ?? string.Empty;
     }
 }
