@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Sentry.CrashReporter.Controls;
 using Sentry.CrashReporter.ViewModels;
 
@@ -21,25 +22,34 @@ public sealed partial class EventView : UserControl
                         .Style(ThemeResource.Get<Style>("ExpanderStyle"))
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+                        .IsEnabled(x => x.Binding(() => vm.Tags).Convert(IsNotNullOrEmpty))
                         .Content(new JsonGrid()
                             .Data(x => x.Binding(() => vm.Tags))),
                     new Expander()
                         .Header("Contexts")
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+                        .IsEnabled(x => x.Binding(() => vm.Contexts).Convert(IsNotNullOrEmpty))
                         .Content(new JsonGrid()
                             .Data(x => x.Binding(() => vm.Contexts))),
                     new Expander()
                         .Header("Additional Data")
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+                        .IsEnabled(x => x.Binding(() => vm.Extra).Convert(IsNotNullOrEmpty))
                         .Content(new JsonGrid()
                             .Data(x => x.Binding(() => vm.Extra))),
                     new Expander()
                         .Header("SDK")
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+                        .IsEnabled(x => x.Binding(() => vm.Sdk).Convert(IsNotNullOrEmpty))
                         .Content(new JsonGrid()
                             .Data(x => x.Binding(() => vm.Sdk)))));
+    }
+
+    private static bool IsNotNullOrEmpty(JsonObject? obj)
+    {
+        return obj is not null && obj.Count > 0;
     }
 }
