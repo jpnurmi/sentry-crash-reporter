@@ -76,6 +76,7 @@ public partial class App : Application
                     services.AddSingleton<HeaderViewModel>();
                     services.AddSingleton<EnvelopeViewModel>();
                     services.AddSingleton<FeedbackViewModel>();
+                    services.AddSingleton<EventViewModel>();
                 })
             );
         MainWindow = builder.Window;
@@ -84,7 +85,7 @@ public partial class App : Application
 
         var scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
         MainWindow.AppWindow.Resize(new SizeInt32
-            { Width = (int)Math.Round(800 * scale), Height = (int)Math.Round(600 * scale) });
+            { Width = (int)Math.Round(960 * scale), Height = (int)Math.Round(720 * scale) });
 
 #if DEBUG
         MainWindow.UseStudio();

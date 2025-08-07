@@ -20,7 +20,7 @@ public sealed partial class HeaderView : Page
                         .Children(
                             new TextBlock()
                                 .Text("Report a Bug")
-                                .FontSize(24)
+                                .Style(ThemeResource.Get<Style>("TitleLargeTextBlockStyle"))
                                 .Margin(0, 0, 0, 8)
                                 .Grid(row: 0, column: 0, columnSpan: 2),
                             new TextBlock()
