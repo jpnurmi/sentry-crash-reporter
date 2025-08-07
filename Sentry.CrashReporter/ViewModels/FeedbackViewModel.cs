@@ -4,7 +4,6 @@ namespace Sentry.CrashReporter.ViewModels;
 
 public partial class FeedbackViewModel : ObservableObject
 {
-    private readonly SentryClient _client;
     private Envelope? _envelope;
     [ObservableProperty]
     private string? _dsn;
@@ -17,16 +16,13 @@ public partial class FeedbackViewModel : ObservableObject
     [ObservableProperty]
     private string _name = string.Empty;
 
-    public FeedbackViewModel(EnvelopeService service, SentryClient client, IOptions<AppConfig> config)
+    public FeedbackViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {
-        _client = client;
-
         if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
             Task.Run(async () =>
             {
                 Envelope = await service.LoadAsync(config.Value.FilePath);
-                SubmitCommand.NotifyCanExecuteChanged();
 
                 // TODO: do we want to pre-fill the user information?
                 // var user = envelope.TryGetEvent()?.TryGetPayload("user");
@@ -44,32 +40,8 @@ public partial class FeedbackViewModel : ObservableObject
             SetProperty(ref _envelope, value);
             Dsn = value?.TryGetDsn();
             EventId = value?.TryGetEventId();
-            SubmitCommand.NotifyCanExecuteChanged();
         }
     }
 
-    public bool CanGiveFeedback => EventId != null && !string.IsNullOrWhiteSpace(Dsn);
-
-    private bool CanSubmit()
-    {
-        return _envelope != null && !string.IsNullOrWhiteSpace(Dsn);
-    }
-
-    [RelayCommand(CanExecute = nameof(CanSubmit))]
-    private void Submit()
-    {
-        _client.SubmitEnvelopeAsync(_envelope!).GetAwaiter().GetResult();
-        if (!string.IsNullOrWhiteSpace(Description))
-        {
-            _client.SubmitFeedbackAsync(Dsn!, Email, Name, Description, EventId).GetAwaiter().GetResult();
-        }
-
-        (Application.Current as App)?.MainWindow?.Close(); // TODO: cleanup
-    }
-
-    [RelayCommand]
-    private void Cancel()
-    {
-        (Application.Current as App)?.MainWindow?.Close(); // TODO: cleanup
-    }
+    public bool IsEnabled => EventId != null && !string.IsNullOrWhiteSpace(Dsn);
 }

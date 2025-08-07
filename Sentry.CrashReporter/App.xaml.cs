@@ -77,6 +77,7 @@ public partial class App : Application
                     services.AddSingleton<EnvelopeViewModel>();
                     services.AddSingleton<FeedbackViewModel>();
                     services.AddSingleton<EventViewModel>();
+                    services.AddSingleton<FooterViewModel>();
                 })
             );
         MainWindow = builder.Window;
