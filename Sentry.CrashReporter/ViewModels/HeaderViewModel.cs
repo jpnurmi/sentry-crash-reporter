@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
@@ -24,9 +25,9 @@ public partial class HeaderViewModel : ObservableObject
         private set
         {
             SetProperty(ref _event, value);
-            var payload = value?.TryGetPayload();
-            EventId = payload?.TryGetProperty("event_id", out var eventId) == true ? eventId.GetString() : null;
-            Release = payload?.TryGetProperty("release", out var release) == true ? release.GetString() : null;
+            var payload = value?.TryGetJsonPayload()?.AsObject();
+            EventId = payload?.TryGetPropertyValue("event_id", out var eventId) == true ? eventId?.GetValue<string>() : null;
+            Release = payload?.TryGetPropertyValue("release", out var release) == true ? release?.GetValue<string>() : null;
         }
     }
 }

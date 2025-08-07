@@ -1,34 +1,39 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Sentry.CrashReporter.Models;
 
-public sealed class EnvelopeItem(JsonElement header, byte[] payload)
+public sealed class EnvelopeItem(JsonObject header, byte[] payload)
 {
-    public JsonElement Header { get; } = header;
+    public JsonObject Header { get; } = header;
     public byte[] Payload { get; } = payload;
 
     public string? TryGetType()
     {
-        return TryGetHeader("type")?.GetString();
+        return TryGetHeader<string>("type");
     }
 
-    public JsonElement? TryGetHeader(string key)
+    public T? TryGetHeader<T>(string key)
     {
-        return Header.TryGetProperty(key, out var value) ? value : null;
+        if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value && value.TryGetValue(out T? result))
+        {
+            return result;
+        }
+        return default;
     }
 
-    public JsonElement? TryGetPayload(string? key = null)
+    public JsonNode? TryGetJsonPayload(string? key = null)
     {
         try
         {
-            var json = JsonDocument.Parse(Payload).RootElement;
+            var json = JsonNode.Parse(Payload);
             if (string.IsNullOrEmpty(key))
             {
                 return json;
             }
 
-            return json.TryGetProperty(key, out var value) ? value : null;
+            return json?.AsObject().TryGetPropertyValue(key, out var node) == true ? node : null;
         } catch (JsonException)
         {
             return null;
@@ -39,7 +44,7 @@ public sealed class EnvelopeItem(JsonElement header, byte[] payload)
         Stream stream,
         CancellationToken cancellationToken = default)
     {
-        var json = Encoding.UTF8.GetBytes(Header.GetRawText());
+        var json = Encoding.UTF8.GetBytes(Header.ToJsonString());
         await stream.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
 
         await stream.WriteLineAsync(Payload.AsMemory(), cancellationToken).ConfigureAwait(false);
@@ -50,12 +55,11 @@ public sealed class EnvelopeItem(JsonElement header, byte[] payload)
     {
         var buffer = await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
                      throw new InvalidOperationException("Envelope item is malformed.");
-        var doc = JsonDocument.Parse(buffer) ?? throw new InvalidOperationException("Envelope item is malformed.");
+        var header = JsonNode.Parse(buffer)?.AsObject() ?? throw new InvalidOperationException("Envelope item is malformed.");
 
-        var header = doc.RootElement;
-        if (header.TryGetProperty("length", out var length))
+        if (header.TryGetPropertyValue("length", out var node) && node?.AsValue()?.TryGetValue(out long length) == true)
         {
-            var payload = new byte[length.GetUInt64()];
+            var payload = new byte[length];
             var pos = 0;
             while (pos < payload.Length)
             {
@@ -77,24 +81,28 @@ public sealed class EnvelopeItem(JsonElement header, byte[] payload)
     }
 }
 
-public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> items)
+public sealed class Envelope(JsonObject header, IReadOnlyList<EnvelopeItem> items)
 {
-    public JsonElement Header { get; } = header;
+    public JsonObject Header { get; } = header;
     public IReadOnlyList<EnvelopeItem> Items { get; } = items;
 
     public string? TryGetDsn()
     {
-        return TryGetHeader("dsn")?.GetString();
+        return TryGetHeader<string>("dsn");
     }
 
     public string? TryGetEventId()
     {
-        return TryGetHeader("event_id")?.GetString();
+        return TryGetHeader<string>("event_id");
     }
 
-    public JsonElement? TryGetHeader(string key)
+    public T? TryGetHeader<T>(string key)
     {
-        return Header.TryGetProperty(key, out var value) ? value : null;
+        if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value && value.TryGetValue(out T? result))
+        {
+            return result;
+        }
+        return default;
     }
 
     public EnvelopeItem? TryGetEvent()
@@ -106,7 +114,7 @@ public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> ite
         Stream stream,
         CancellationToken cancellationToken = default)
     {
-        var json = Encoding.UTF8.GetBytes(Header.GetRawText());
+        var json = Encoding.UTF8.GetBytes(Header.ToJsonString());
         await stream.WriteLineAsync(json.AsMemory(), cancellationToken).ConfigureAwait(false);
 
         foreach (var item in Items)
@@ -121,7 +129,7 @@ public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> ite
     {
         var buffer = await stream.ReadLineAsync(cancellationToken).ConfigureAwait(false) ??
                      throw new InvalidOperationException("Envelope header is malformed.");
-        var header = JsonDocument.Parse(buffer).RootElement;
+        var header = JsonNode.Parse(buffer)?.AsObject() ?? throw new InvalidOperationException("Envelope header is malformed.");
 
         var items = new List<EnvelopeItem>();
         while (stream.Position < stream.Length)
@@ -134,19 +142,17 @@ public sealed class Envelope(JsonElement header, IReadOnlyList<EnvelopeItem> ite
         return new Envelope(header, items);
     }
 
-    public static Envelope FromJson(object header, IEnumerable<(object header, object payload)> items)
+    public static Envelope FromJson(object header, IEnumerable<(object Header, object Payload)> items)
     {
-        var envelopeHeader = JsonSerializer.SerializeToElement(header);
-
+        var envelopeHeader = JsonSerializer.SerializeToNode(header)!.AsObject();
         var envelopeItems = new List<EnvelopeItem>();
         foreach (var item in items)
         {
-            var itemHeader = JsonSerializer.SerializeToElement(item.header);
-            var itemPayload = JsonSerializer.SerializeToElement(item.payload);
-            envelopeItems.Add(new EnvelopeItem(itemHeader, Encoding.UTF8.GetBytes(itemPayload.GetRawText())));
+            var itemHeader = JsonSerializer.SerializeToNode(header)!.AsObject();
+            var itemPayload = JsonSerializer.SerializeToNode(item.Payload)!.AsObject();
+            envelopeItems.Add(new EnvelopeItem(itemHeader!, Encoding.UTF8.GetBytes(itemPayload!.ToJsonString())));
         }
-
-        return new Envelope(envelopeHeader, envelopeItems);
+        return new Envelope(envelopeHeader!, envelopeItems);
     }
 }
 
