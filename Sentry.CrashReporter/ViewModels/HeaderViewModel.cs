@@ -1,3 +1,4 @@
+using Microsoft.UI.Dispatching;
 using Sentry.CrashReporter.Extensions;
 using Sentry.CrashReporter.Services;
 
@@ -20,7 +21,12 @@ public partial class HeaderViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
-            Task.Run(async () => Event = (await service.LoadAsync(config.Value.FilePath))?.TryGetEvent());
+            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            Task.Run(async () =>
+            {
+                var envelope = (await service.LoadAsync(config.Value.FilePath));
+                dispatcherQueue.TryEnqueue(() => Event = envelope?.TryGetEvent());
+            });
         }
     }
 

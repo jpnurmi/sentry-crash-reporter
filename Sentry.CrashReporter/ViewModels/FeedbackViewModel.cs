@@ -1,3 +1,4 @@
+using Microsoft.UI.Dispatching;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
@@ -20,9 +21,11 @@ public partial class FeedbackViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
+            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             Task.Run(async () =>
             {
-                Envelope = await service.LoadAsync(config.Value.FilePath);
+                var envelope = await service.LoadAsync(config.Value.FilePath);
+                dispatcherQueue.TryEnqueue(() => Envelope = envelope);
 
                 // TODO: do we want to pre-fill the user information?
                 // var user = envelope.TryGetEvent()?.TryGetPayload("user");

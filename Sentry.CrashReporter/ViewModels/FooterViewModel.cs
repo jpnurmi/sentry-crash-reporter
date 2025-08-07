@@ -1,3 +1,4 @@
+using Microsoft.UI.Dispatching;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
@@ -19,10 +20,15 @@ public partial class FooterViewModel : ObservableObject
 
         if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
+            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             Task.Run(async () =>
             {
-                Envelope = await service.LoadAsync(config.Value.FilePath);
-                SubmitCommand.NotifyCanExecuteChanged();
+                var envelope = await service.LoadAsync(config.Value.FilePath);
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                    Envelope = envelope;
+                    SubmitCommand.NotifyCanExecuteChanged();
+                });
             });
         }
     }

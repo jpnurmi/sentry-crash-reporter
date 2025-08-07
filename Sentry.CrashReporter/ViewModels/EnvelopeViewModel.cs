@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.UI.Dispatching;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
@@ -19,7 +20,12 @@ public partial class EnvelopeViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(config.Value?.FilePath))
         {
-            Task.Run(async () => Envelope = await service.LoadAsync(config.Value.FilePath));
+            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            Task.Run(async () =>
+            {
+                var envelope = await service.LoadAsync(config.Value.FilePath);
+                dispatcherQueue.TryEnqueue(() => Envelope = envelope);
+            });
         }
     }
 
