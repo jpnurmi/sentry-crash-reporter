@@ -1,3 +1,4 @@
+using Sentry.CrashReporter.Controls;
 using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
@@ -34,15 +35,22 @@ public sealed partial class FeedbackView : Page
                         .IsEnabled(x => x.Binding(() => vm.CanGiveFeedback))
                         .VerticalAlignment(VerticalAlignment.Stretch)
                         .Grid(row: 3),
-                    new StackPanel()
-                        .Orientation(Orientation.Horizontal)
-                        .HorizontalAlignment(HorizontalAlignment.Right)
-                        .Spacing(8)
+                    new Grid()
+                        .ColumnSpacing(8)
+                        .ColumnDefinitions("Auto,*,Auto,Auto")
                         .Children(
+                            new IconLabel()
+                                .Symbol(Symbol.Copy)
+                                .ToolTip("EventID")
+                                .Text(x => x.Binding(() => vm.EventId)
+                                    .Convert(eventId => eventId?.Replace("-", string.Empty)[..8] ?? string.Empty))
+                                .Grid(0),
                             new Button { Content = "Cancel" }
+                                .Grid(2)
                                 .Command(vm.CancelCommand)
                                 .Background(Colors.Transparent),
                             new Button { Content = "Submit" }
+                                .Grid(3)
                                 .Command(vm.SubmitCommand)
                                 .Foreground(Colors.White)
                                 .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush"))

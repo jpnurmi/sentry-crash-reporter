@@ -1,3 +1,4 @@
+using Sentry.CrashReporter.Controls;
 using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
@@ -16,6 +17,7 @@ public sealed partial class HeaderView : Page
                 )
                 .Children(
                     new StackPanel()
+                        .Orientation(Orientation.Vertical)
                         .Spacing(8)
                         .Children(
                             new TextBlock()
@@ -23,8 +25,23 @@ public sealed partial class HeaderView : Page
                                 .Style(ThemeResource.Get<Style>("TitleLargeTextBlockStyle"))
                                 .Margin(0, 0, 0, 8)
                                 .Grid(row: 0, column: 0, columnSpan: 2),
-                            new TextBlock()
-                                .Text(x => x.Binding(() => vm.Release))
+                            new StackPanel()
+                                .Orientation(Orientation.Horizontal)
+                                .Spacing(16)
+                                .Children(
+                                    new IconLabel()
+                                        .Symbol(Symbol.Globe)
+                                        .ToolTip("Release")
+                                        .Text(x => x.Binding(() => vm.Release)),
+                                    new IconLabel()
+                                        .Icon(new BrandIcon().Brand(x => x.Binding(() => vm.OsName)))
+                                        .ToolTip("Operating System")
+                                        .Text(x => x.Binding(() => vm.Os)),
+                                    new IconLabel()
+                                        .Symbol(Symbol.Repair)
+                                        .ToolTip("Environment")
+                                        .Text(x => x.Binding(() => vm.Environment))
+                                )
                                 .Grid(row: 2, column: 1)
                         )
                         .Grid(0),

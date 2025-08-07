@@ -43,7 +43,7 @@ public partial class EventViewModel : ObservableObject
     }
 }
 
-internal static class JsonExtensions
+internal static partial class JsonExtensions
 {
     public static JsonObject AsFlatObject(this JsonNode source)
     {

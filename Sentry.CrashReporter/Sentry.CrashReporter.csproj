@@ -49,6 +49,12 @@
         <Content Include="Assets\Fonts\SourceCodePro\SourceCodePro-Regular.ttf">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <Content Include="Assets\Fonts\FontAwesome\Font Awesome 7 Brands-Regular-400.otf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Assets\Fonts\FontAwesome\Font Awesome 7 Free-Regular-400.otf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
         <None Include="Info.plist">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

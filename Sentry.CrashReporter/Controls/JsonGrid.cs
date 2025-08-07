@@ -67,21 +67,17 @@ public class JsonGrid : Grid
                 .Background(row % 2 == 0 ? evenBrush : oddBrush)
                 .CornerRadius(new CornerRadius(2, 0, 0, 2))
                 .Padding(new Thickness(4, 2, 8, 2))
-                .Child(new TextBlock()
-                    .Text(kvp.Key)
-                    .IsTextSelectionEnabled(true)
-                    .SelectionHighlightColor(ThemeResource.Get<SolidColorBrush>("SystemAccentColorBrush"))));
+                .Child(new SelectableTextBlock()
+                    .Text(kvp.Key)));
 
             Children.Add(new Border()
                 .Grid(row: row, column: 1)
                 .Background(row % 2 == 0 ? evenBrush : oddBrush)
                 .CornerRadius(new CornerRadius(0, 2, 2, 0))
                 .Padding(new Thickness(8, 2, 4, 2))
-                .Child(new TextBlock()
+                .Child(new SelectableTextBlock()
                     .Text(kvp.Value?.ToString() ?? "")
-                    .TextWrapping(TextWrapping.Wrap)
-                    .IsTextSelectionEnabled(true)
-                    .SelectionHighlightColor(ThemeResource.Get<SolidColorBrush>("SystemAccentColorBrush"))));
+                    .TextWrapping(TextWrapping.Wrap)));
 
             row++;
         }
