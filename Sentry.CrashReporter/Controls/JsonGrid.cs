@@ -29,7 +29,7 @@ public class JsonGrid : Grid
         set => SetValue(DataProperty, value);
     }
 
-    void TryAutoBind()
+    private void TryAutoBind()
     {
         if (ReadLocalValue(DataProperty) == DependencyProperty.UnsetValue &&
             DataContext is JsonObject json)
@@ -38,7 +38,7 @@ public class JsonGrid : Grid
         }
     }
 
-    void UpdateGrid(JsonObject? json)
+    private void UpdateGrid(JsonObject? json)
     {
         if (!DispatcherQueue.HasThreadAccess)
         {
