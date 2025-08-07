@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+using Sentry.CrashReporter.Extensions;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
@@ -41,28 +41,5 @@ public partial class HeaderViewModel : ObservableObject
             Release = payload?.TryGetString("release");
             Environment = payload?.TryGetString("environment");
         }
-    }
-}
-
-internal static partial class JsonExtensions
-{
-    public static string? TryGetString(this JsonObject json, string propertyName)
-    {
-        JsonNode? node = json;
-        foreach (var path in propertyName.Split('.'))
-        {
-            if (node is JsonObject obj && obj.TryGetPropertyValue(path, out var next))
-                node = next;
-            else
-                return null;
-        }
-        return node?.GetValue<string>();
-    }
-
-    public static DateTime? TryGetDateTime(this JsonObject json, string propertyName)
-    {
-        return DateTime.TryParse(json.TryGetString(propertyName) ?? string.Empty, out var timestamp)
-            ? timestamp
-            : null;
     }
 }

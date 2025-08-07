@@ -1,5 +1,5 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using Sentry.CrashReporter.Extensions;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
@@ -40,76 +40,5 @@ public partial class EventViewModel : ObservableObject
                 ? sdk?.AsFlatObject()
                 : null;
         }
-    }
-}
-
-internal static partial class JsonExtensions
-{
-    public static JsonObject AsFlatObject(this JsonNode source)
-    {
-        var nodes = new Dictionary<string, JsonNode?>();
-
-        Flatten(source, "");
-
-        var result = new JsonObject();
-        foreach (var kvp in nodes)
-        {
-            result[kvp.Key] = kvp.Value?.DeepClone();
-        }
-        return result;
-
-        void Flatten(JsonNode? node, string prefix)
-        {
-            switch (node)
-            {
-                case JsonObject obj:
-                    foreach (var (key, value) in obj)
-                    {
-                        var newKey = string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
-                        Flatten(value, newKey);
-                    }
-                    break;
-
-                case JsonArray array:
-                    if (array.Any(v => v is JsonObject or JsonArray))
-                    {
-                        for (var i = 0; i < array.Count; i++)
-                        {
-                            var newKey = $"{prefix}[{i}]";
-                            Flatten(array[i], newKey);
-                        }
-                    } else {
-                        var joined = string.Join(", ", array.Select(n => n.FormatNode()));
-                        nodes[prefix] = JsonValue.Create("[" + joined + "]");
-                    }
-                    break;
-
-                case JsonValue val:
-                    nodes[prefix] = val;
-                    break;
-
-                case null:
-                    nodes[prefix] = null;
-                    break;
-
-                default:
-                    nodes[prefix] = node;
-                    break;
-            }
-        }
-    }
-
-    private static object? FormatNode(this JsonNode? node)
-    {
-        return node switch
-        {
-            null => "null",
-            JsonValue v when v.TryGetValue<bool>(out var b) => b ? "true" : "false",
-            JsonValue v when v.TryGetValue<double>(out var d) => d.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            JsonValue v when v.TryGetValue<long>(out var l) => l.ToString(),
-            JsonValue v when v.TryGetValue<int>(out var i) => i.ToString(),
-            JsonValue v when v.TryGetValue<string>(out var s) => s,
-            _ => node?.ToJsonString() ?? "null"
-        };
     }
 }
