@@ -16,7 +16,7 @@ public sealed partial class EventView : UserControl
                 .Children(
                     new TextBlock()
                         .Text("Event")
-                        .Style(ThemeResource.Get<Style>("TitleTextBlockStyle")),
+                        .Style(ThemeResource.Get<Style>("SubtitleTextBlockStyle")),
                     new Expander()
                         .Header("Tags")
                         .HorizontalAlignment(HorizontalAlignment.Stretch)

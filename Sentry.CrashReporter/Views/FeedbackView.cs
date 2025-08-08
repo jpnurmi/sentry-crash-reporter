@@ -1,4 +1,3 @@
-using Sentry.CrashReporter.Controls;
 using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
@@ -16,7 +15,7 @@ public sealed partial class FeedbackView : Page
                 .Children(
                     new TextBlock()
                         .Text("Feedback (optional)")
-                        .Style(ThemeResource.Get<Style>("TitleTextBlockStyle")),
+                        .Style(ThemeResource.Get<Style>("SubtitleTextBlockStyle")),
                     new TextBox()
                         .PlaceholderText("Name")
                         .IsEnabled(x => x.Binding(() => vm.IsEnabled))

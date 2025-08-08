@@ -1,5 +1,7 @@
+using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Graphics.Display;
+using Windows.UI.ViewManagement;
 using Sentry.CrashReporter.Services;
 using Sentry.CrashReporter.ViewModels;
 using Sentry.CrashReporter.Views;
@@ -87,7 +89,10 @@ public partial class App : Application
 
         var scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
         MainWindow.AppWindow.Resize(new SizeInt32
-            { Width = (int)Math.Round(860 * scale), Height = (int)Math.Round(640 * scale) });
+            { Width = (int)Math.Round(800 * scale), Height = (int)Math.Round(560 * scale) });
+
+        var view = ApplicationView.GetForCurrentView();
+        view.SetPreferredMinSize(new Size(600, 400));
 
 #if DEBUG
         MainWindow.UseStudio();
