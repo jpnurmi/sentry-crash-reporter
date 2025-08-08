@@ -60,4 +60,8 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="KaitaiStruct.Runtime.CSharp"/>
+    </ItemGroup>
+
 </Project>

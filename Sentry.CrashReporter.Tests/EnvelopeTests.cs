@@ -21,17 +21,15 @@ public class EnvelopeTests
 
         var attachment = envelope.Items[0];
         attachment.TryGetType().Should().Be("attachment");
-        attachment.TryGetHeader<long>("length").Should().Be(10);
-        attachment.TryGetHeader<string>("content_type").Should().Be("text/plain");
-        attachment.TryGetHeader<string>("filename").Should().Be("hello.txt");
+        attachment.TryGetHeader("content_type").Should().Be("text/plain");
+        attachment.TryGetHeader("filename").Should().Be("hello.txt");
         attachment.Payload.Length.Should().Be(10);
         attachment.TryParseAsJson()?.Should().BeNull();
 
         var message = envelope.Items[1];
         message.TryGetType().Should().Be("event");
-        message.TryGetHeader<long>("length").Should().Be(41);
-        message.TryGetHeader<string>("content_type").Should().Be("application/json");
-        message.TryGetHeader<string>("filename").Should().Be("application.log");
+        message.TryGetHeader("content_type").Should().Be("application/json");
+        message.TryGetHeader("filename").Should().Be("application.log");
         message.Payload.Length.Should().Be(41);
         message.TryParseAsJson()?.ToJsonString().Should().Be("""{"message":"hello world","level":"error"}""");
     }
@@ -49,9 +47,8 @@ public class EnvelopeTests
         foreach (var attachment in envelope.Items)
         {
             attachment.TryGetType().Should().Be("attachment");
-            attachment.TryGetHeader<long>("length").Should().Be(0);
-            attachment.TryGetHeader<string>("content_type").Should().BeNull();
-            attachment.TryGetHeader<string>("filename").Should().BeNull();
+            attachment.TryGetHeader("content_type").Should().BeNull();
+            attachment.TryGetHeader("filename").Should().BeNull();
             attachment.Payload.Length.Should().Be(0);
             attachment.TryParseAsJson()?.Should().BeNull();
         }
@@ -69,9 +66,8 @@ public class EnvelopeTests
 
         var attachment = envelope.Items[0];
         attachment.TryGetType().Should().Be("attachment");
-        attachment.TryGetHeader<long?>("length").Should().BeNull();
-        attachment.TryGetHeader<string>("content_type").Should().BeNull();
-        attachment.TryGetHeader<string>("filename").Should().BeNull();
+        attachment.TryGetHeader("content_type").Should().BeNull();
+        attachment.TryGetHeader("filename").Should().BeNull();
         attachment.Payload.Length.Should().Be(10);
         attachment.TryParseAsJson()?.Should().BeNull();
     }
@@ -88,7 +84,6 @@ public class EnvelopeTests
 
         var session = envelope.Items[0];
         session.TryGetType().Should().Be("session");
-        session.TryGetHeader<long?>("length").Should().BeNull();
         session.Payload.Length.Should().Be(75);
         session.TryParseAsJson()?.ToJsonString().Should()
             .Be("""{"started":"2020-02-07T14:16:00Z","attrs":{"release":"sentry-test@1.0.0"}}""");
@@ -106,7 +101,6 @@ public class EnvelopeTests
 
         var binary = envelope.Items[0];
         binary.TryGetType().Should().Be("attachment");
-        binary.TryGetHeader<long>("length").Should().Be(3);
         binary.Payload.Length.Should().Be(3);
         binary.Payload.Should().BeEquivalentTo([0xFF, 0xFE, 0xFD]);
     }

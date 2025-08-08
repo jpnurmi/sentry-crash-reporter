@@ -11,21 +11,18 @@ public sealed class EnvelopeItem(JsonObject header, byte[] payload)
 
     public string? TryGetType()
     {
-        return TryGetHeader<string>("type");
+        return TryGetHeader("type");
     }
 
-    public JsonObject? TryGetException()
+    public string? TryGetHeader(string key)
     {
-        return TryGetJsonProperty("exception")?.AsObject();
-    }
-
-    public T? TryGetHeader<T>(string key)
-    {
-        if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value && value.TryGetValue(out T? result))
+        if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value &&
+            value.TryGetValue(out string? result))
         {
             return result;
         }
-        return default;
+
+        return null;
     }
 
     public JsonObject? TryParseAsJson()
@@ -38,11 +35,6 @@ public sealed class EnvelopeItem(JsonObject header, byte[] payload)
         {
             return null;
         }
-    }
-
-    public JsonNode? TryGetJsonProperty(string key)
-    {
-        return TryParseAsJson()?.AsObject().TryGetPropertyValue(key, out var node) == true ? node : null;
     }
 
     internal async Task SerializeAsync(
@@ -93,26 +85,39 @@ public sealed class Envelope(JsonObject header, IReadOnlyList<EnvelopeItem> item
 
     public string? TryGetDsn()
     {
-        return TryGetHeader<string>("dsn");
+        return TryGetHeader("dsn");
     }
 
     public string? TryGetEventId()
     {
-        return TryGetHeader<string>("event_id");
+        return TryGetHeader("event_id");
     }
 
-    public T? TryGetHeader<T>(string key)
+    public string? TryGetHeader(string key)
     {
-        if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value && value.TryGetValue(out T? result))
+        if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value &&
+            value.TryGetValue(out string? result))
         {
             return result;
         }
-        return default;
+
+        return null;
     }
 
     public EnvelopeItem? TryGetEvent()
     {
         return Items.FirstOrDefault(i => i.TryGetType() == "event");
+    }
+
+    public Minidump? TryGetMinidump()
+    {
+        var item = Items.FirstOrDefault(i => i.TryGetHeader("attachment_type") == "event.minidump");
+        if (item is null)
+        {
+            return null;
+        }
+
+        return Minidump.FromBytes(item.Payload);
     }
 
     public async Task SerializeAsync(
