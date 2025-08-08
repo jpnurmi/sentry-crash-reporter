@@ -14,6 +14,11 @@ public sealed class EnvelopeItem(JsonObject header, byte[] payload)
         return TryGetHeader<string>("type");
     }
 
+    public JsonObject? TryGetException()
+    {
+        return TryGetJsonProperty("exception")?.AsObject();
+    }
+
     public T? TryGetHeader<T>(string key)
     {
         if (Header.TryGetPropertyValue(key, out var node) && node is JsonValue value && value.TryGetValue(out T? result))
@@ -23,21 +28,21 @@ public sealed class EnvelopeItem(JsonObject header, byte[] payload)
         return default;
     }
 
-    public JsonNode? TryGetJsonPayload(string? key = null)
+    public JsonObject? TryParseAsJson()
     {
         try
         {
-            var json = JsonNode.Parse(Payload);
-            if (string.IsNullOrEmpty(key))
-            {
-                return json;
-            }
-
-            return json?.AsObject().TryGetPropertyValue(key, out var node) == true ? node : null;
-        } catch (JsonException)
+            return JsonNode.Parse(Payload)?.AsObject();
+        }
+        catch (JsonException)
         {
             return null;
         }
+    }
+
+    public JsonNode? TryGetJsonProperty(string key)
+    {
+        return TryParseAsJson()?.AsObject().TryGetPropertyValue(key, out var node) == true ? node : null;
     }
 
     internal async Task SerializeAsync(

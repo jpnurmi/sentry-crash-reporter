@@ -99,7 +99,7 @@ public class IconLabel : StackPanel
             Children.Add(icon);
         }
 
-        if (Text != null)
+        if (Text is not null)
         {
             Children.Add(new SelectableTextBlock()
                 .Text(Text)

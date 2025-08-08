@@ -16,6 +16,8 @@ public partial class HeaderViewModel : ObservableObject
     [ObservableProperty] private string? _osVersion;
     [ObservableProperty] private string? _release;
     [ObservableProperty] private string? _environment;
+    [ObservableProperty] private string? _exceptionType;
+    [ObservableProperty] private string? _exceptionValue;
 
     public HeaderViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {
@@ -35,17 +37,21 @@ public partial class HeaderViewModel : ObservableObject
         get => _event;
         private set
         {
-            SetProperty(ref _event, value);
-            var payload = value?.TryGetJsonPayload()?.AsObject();
+            var payload = value?.TryParseAsJson();
             EventId = (payload?.TryGetString("event_id"))?.Replace("-", string.Empty)[..8];
             Timestamp = payload?.TryGetDateTime("timestamp");
             Platform = payload?.TryGetString("platform");
             Level = payload?.TryGetString("level");
-            OsName = payload?.TryGetString("contexts.os.name");
-            OsVersion = payload?.TryGetString("contexts.os.version");
+            var os = payload?.TryGetProperty("contexts.os")?.AsObject();
+            OsName = os?.TryGetString("name");
+            OsVersion = os?.TryGetString("version");
             Os = $"{OsName} {OsVersion}";
             Release = payload?.TryGetString("release");
             Environment = payload?.TryGetString("environment");
+            var exception = payload?.TryGetProperty("exception.values")?.AsArray().FirstOrDefault()?.AsObject();
+            ExceptionType = exception?.TryGetString("type");
+            ExceptionValue = exception?.TryGetString("value");
+            SetProperty(ref _event, value);
         }
     }
 }

@@ -7,7 +7,7 @@ public class EnvelopeService
 {
     private Envelope? _cachedEnvelope;
     private string? _cachedHash;
-    
+
     public async ValueTask<Envelope?> LoadAsync(string filePath, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(filePath))
@@ -39,7 +39,7 @@ public class EnvelopeService
 
         return null;
     }
-    
+
     private async Task<string> ComputeFileHashAsync(string filePath, CancellationToken cancellationToken)
     {
         await using var stream = File.OpenRead(filePath);

@@ -25,7 +25,7 @@ public class EnvelopeTests
         attachment.TryGetHeader<string>("content_type").Should().Be("text/plain");
         attachment.TryGetHeader<string>("filename").Should().Be("hello.txt");
         attachment.Payload.Length.Should().Be(10);
-        attachment.TryGetJsonPayload()?.Should().BeNull();
+        attachment.TryParseAsJson()?.Should().BeNull();
 
         var message = envelope.Items[1];
         message.TryGetType().Should().Be("event");
@@ -33,7 +33,7 @@ public class EnvelopeTests
         message.TryGetHeader<string>("content_type").Should().Be("application/json");
         message.TryGetHeader<string>("filename").Should().Be("application.log");
         message.Payload.Length.Should().Be(41);
-        message.TryGetJsonPayload()?.ToJsonString().Should().Be("""{"message":"hello world","level":"error"}""");
+        message.TryParseAsJson()?.ToJsonString().Should().Be("""{"message":"hello world","level":"error"}""");
     }
 
     [Test]
@@ -53,7 +53,7 @@ public class EnvelopeTests
             attachment.TryGetHeader<string>("content_type").Should().BeNull();
             attachment.TryGetHeader<string>("filename").Should().BeNull();
             attachment.Payload.Length.Should().Be(0);
-            attachment.TryGetJsonPayload()?.Should().BeNull();
+            attachment.TryParseAsJson()?.Should().BeNull();
         }
     }
 
@@ -73,7 +73,7 @@ public class EnvelopeTests
         attachment.TryGetHeader<string>("content_type").Should().BeNull();
         attachment.TryGetHeader<string>("filename").Should().BeNull();
         attachment.Payload.Length.Should().Be(10);
-        attachment.TryGetJsonPayload()?.Should().BeNull();
+        attachment.TryParseAsJson()?.Should().BeNull();
     }
 
     [Test]
@@ -90,7 +90,7 @@ public class EnvelopeTests
         session.TryGetType().Should().Be("session");
         session.TryGetHeader<long?>("length").Should().BeNull();
         session.Payload.Length.Should().Be(75);
-        session.TryGetJsonPayload()?.ToJsonString().Should()
+        session.TryParseAsJson()?.ToJsonString().Should()
             .Be("""{"started":"2020-02-07T14:16:00Z","attrs":{"release":"sentry-test@1.0.0"}}""");
     }
 

@@ -1,20 +1,31 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
 
 namespace Sentry.CrashReporter.Extensions;
 
 public static class JsonExtensions
 {
-    public static string? TryGetString(this JsonObject json, string propertyName)
+    public static JsonNode? TryGetProperty(this JsonObject json, string propertyName)
     {
         JsonNode? node = json;
         foreach (var path in propertyName.Split('.'))
         {
             if (node is JsonObject obj && obj.TryGetPropertyValue(path, out var next))
+            {
                 node = next;
+            }
             else
+            {
                 return null;
+            }
         }
-        return node?.GetValue<string>();
+
+        return node;
+    }
+
+    public static string? TryGetString(this JsonObject json, string propertyName)
+    {
+        return json.TryGetProperty(propertyName)?.GetValue<string>();
     }
 
     public static DateTime? TryGetDateTime(this JsonObject json, string propertyName)
@@ -84,7 +95,7 @@ public static class JsonExtensions
         {
             null => "null",
             JsonValue v when v.TryGetValue<bool>(out var b) => b ? "true" : "false",
-            JsonValue v when v.TryGetValue<double>(out var d) => d.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            JsonValue v when v.TryGetValue<double>(out var d) => d.ToString(CultureInfo.InvariantCulture),
             JsonValue v when v.TryGetValue<long>(out var l) => l.ToString(),
             JsonValue v when v.TryGetValue<int>(out var i) => i.ToString(),
             JsonValue v when v.TryGetValue<string>(out var s) => s,

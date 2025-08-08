@@ -32,7 +32,7 @@ public partial class EventViewModel : ObservableObject
         private set
         {
             SetProperty(ref _event, value);
-            var payload = value?.TryGetJsonPayload() as JsonObject;
+            var payload = value?.TryParseAsJson();
             Tags = payload?.TryGetPropertyValue("tags", out var tags) == true
                 ? tags?.AsObject()
                 : null;
