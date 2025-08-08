@@ -61,9 +61,11 @@ public class FaIcon : FontIcon
             FontFamily = FaSolidFontFamily;
             Glyph = Icon.ToLower() switch
             {
-                "fa-exclamation" => "\uf12a",
                 "fa-bug" => "\uf188",
-                _ => string.Empty
+                "fa-copy" => "\uf0c5",
+                "fa-globe" => "\uf0ac",
+                "fa-wrench" => "\uf0ad",
+                _ => "\uf128"
             };
         }
         else

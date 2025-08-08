@@ -30,25 +30,25 @@ public sealed partial class HeaderView : Page
                                 .Spacing(16)
                                 .Children(
                                     new IconLabel()
-                                        .Icon(new FaIcon().Icon("fa-bug"))
+                                        .Awesome("fa-bug")
                                         .ToolTip(x => x.Binding(() => vm.ExceptionValue))
                                         .Text(x => x.Binding(() => vm.ExceptionType))
                                         .Visibility(x =>
                                             x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.ExceptionType))),
                                     new IconLabel()
-                                        .Symbol(Symbol.Globe)
+                                        .Awesome("fa-globe")
                                         .ToolTip("Release")
                                         .Text(x => x.Binding(() => vm.Release))
                                         .Visibility(x =>
                                             x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Release))),
                                     new IconLabel()
-                                        .Icon(new FaIcon().Brand(x => x.Binding(() => vm.OsName)))
+                                        .Brand(x => x.Binding(() => vm.OsName))
                                         .ToolTip("Operating System")
                                         .Text(x => x.Binding(() => vm.Os))
                                         .Visibility(x =>
                                             x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Os))),
                                     new IconLabel()
-                                        .Symbol(Symbol.Repair)
+                                        .Awesome("fa-wrench")
                                         .ToolTip("Environment")
                                         .Text(x => x.Binding(() => vm.Environment))
                                         .Visibility(x =>

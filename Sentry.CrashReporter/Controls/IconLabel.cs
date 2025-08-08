@@ -5,11 +5,19 @@ namespace Sentry.CrashReporter.Controls;
 public class IconLabel : StackPanel
 {
     public static readonly DependencyProperty IconProperty =
-        DependencyProperty.Register(nameof(Icon), typeof(UIElement), typeof(IconLabel),
+        DependencyProperty.Register(nameof(Icon), typeof(FrameworkElement), typeof(IconLabel),
             new PropertyMetadata(null, OnPropertyChanged));
 
     public static readonly DependencyProperty SymbolProperty =
-        DependencyProperty.Register(nameof(Symbol), typeof(Symbol), typeof(IconLabel),
+        DependencyProperty.Register(nameof(Symbol), typeof(Symbol?), typeof(IconLabel),
+            new PropertyMetadata(null, OnPropertyChanged));
+
+    public static readonly DependencyProperty AwesomeProperty =
+        DependencyProperty.Register(nameof(Awesome), typeof(string), typeof(IconLabel),
+            new PropertyMetadata(null, OnPropertyChanged));
+
+    public static readonly DependencyProperty BrandProperty =
+        DependencyProperty.Register(nameof(Brand), typeof(string), typeof(IconLabel),
             new PropertyMetadata(null, OnPropertyChanged));
 
     public static readonly DependencyProperty ToolTipProperty =
@@ -24,9 +32,9 @@ public class IconLabel : StackPanel
         DependencyProperty.Register(nameof(IsTextSelectionEnabled), typeof(bool), typeof(IconLabel),
             new PropertyMetadata(true, OnPropertyChanged));
 
-    public UIElement? Icon
+    public FrameworkElement? Icon
     {
-        get => (UIElement?)GetValue(IconProperty);
+        get => (FrameworkElement?)GetValue(IconProperty);
         set => SetValue(IconProperty, value);
     }
 
@@ -34,6 +42,18 @@ public class IconLabel : StackPanel
     {
         get => (Symbol?)GetValue(SymbolProperty);
         set => SetValue(SymbolProperty, value);
+    }
+
+    public string? Awesome
+    {
+        get => (string?)GetValue(AwesomeProperty);
+        set => SetValue(AwesomeProperty, value);
+    }
+
+    public string? Brand
+    {
+        get => (string?)GetValue(BrandProperty);
+        set => SetValue(BrandProperty, value);
     }
 
     public string? ToolTip
@@ -82,14 +102,27 @@ public class IconLabel : StackPanel
         Children.Clear();
 
         var icon = Icon;
-        if (icon is null && Symbol is {} symbol)
+        if (icon is null)
         {
-            icon = new SymbolIcon()
-                .Symbol(symbol)
-                .VerticalAlignment(VerticalAlignment.Center);
+            if (Symbol is { } symbol)
+            {
+                icon = new SymbolIcon().Symbol(symbol);
+            }
+            else if (!string.IsNullOrEmpty(Awesome))
+            {
+                icon = new FaIcon().Icon(Awesome);
+            }
+            else if (!string.IsNullOrEmpty(Brand))
+            {
+                icon = new FaIcon().Brand(Brand);
+            }
         }
+
         if (icon is not null)
         {
+            icon.HorizontalAlignment = HorizontalAlignment.Center;
+            icon.VerticalAlignment = VerticalAlignment.Center;
+
             icon.PointerPressed += (_, _) =>
             {
                 var dataPackage = new DataPackage();

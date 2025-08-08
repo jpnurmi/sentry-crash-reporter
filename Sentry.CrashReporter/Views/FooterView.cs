@@ -15,8 +15,8 @@ public sealed partial class FooterView : Page
                 .ColumnDefinitions("Auto,*,Auto,Auto")
                 .Children(
                     new IconLabel()
-                        .Symbol(Symbol.Copy)
-                        .ToolTip("EventID")
+                        .Awesome("fa-copy")
+                        .ToolTip("Event ID")
                         .Text(x => x.Binding(() => vm.ShortEventId))
                         .Grid(0),
                     new Button { Content = "Cancel" }
