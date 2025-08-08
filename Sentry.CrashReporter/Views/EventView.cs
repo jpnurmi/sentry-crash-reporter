@@ -19,7 +19,6 @@ public sealed partial class EventView : UserControl
                         .Style(ThemeResource.Get<Style>("TitleTextBlockStyle")),
                     new Expander()
                         .Header("Tags")
-                        .Style(ThemeResource.Get<Style>("ExpanderStyle"))
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
                         .IsEnabled(x => x.Binding(() => vm.Tags).Convert(IsNotNullOrEmpty))
