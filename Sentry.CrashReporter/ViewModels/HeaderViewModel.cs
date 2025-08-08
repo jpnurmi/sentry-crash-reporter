@@ -50,7 +50,7 @@ public partial class HeaderViewModel : ObservableObject
         if (payload?.TryGetProperty("exception.values")?.AsArray().FirstOrDefault()?.AsObject() is { } inproc)
         {
             ExceptionType = inproc.TryGetString("type");
-            ExceptionValue = inproc.TryGetString("value");
+            ExceptionValue = inproc.TryGetString("value") ?? "Exception";
         }
         else if (envelope?.TryGetMinidump()?.Streams.Select(s => s.Data)
                      .OfType<Minidump.ExceptionStream>()
@@ -58,7 +58,7 @@ public partial class HeaderViewModel : ObservableObject
         {
             var code = minidump.ExceptionRec.Code.AsExceptionCode(OsName ?? string.Empty);
             ExceptionType = code?.Type;
-            ExceptionValue = code?.Value;
+            ExceptionValue = code?.Value ?? "Exception";
         }
 
         Event = ev;
