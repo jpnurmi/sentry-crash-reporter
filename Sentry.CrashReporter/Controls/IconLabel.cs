@@ -110,11 +110,11 @@ public class IconLabel : StackPanel
             }
             else if (!string.IsNullOrEmpty(Awesome))
             {
-                icon = new FaIcon().Icon(Awesome);
+                icon = new FontAwesomeIcon().Icon(Awesome);
             }
             else if (!string.IsNullOrEmpty(Brand))
             {
-                icon = new FaIcon().Brand(Brand);
+                icon = new FontAwesomeIcon().Brand(Brand);
             }
         }
 

@@ -1,13 +1,13 @@
 namespace Sentry.CrashReporter.Controls;
 
-public class FaIcon : FontIcon
+public class FontAwesomeIcon : FontIcon
 {
     public static readonly DependencyProperty IconProperty =
-        DependencyProperty.Register(nameof(Icon), typeof(string), typeof(FaIcon),
+        DependencyProperty.Register(nameof(Icon), typeof(string), typeof(FontAwesomeIcon),
             new PropertyMetadata(null, OnPropertyChanged));
 
     public static readonly DependencyProperty BrandProperty =
-        DependencyProperty.Register(nameof(Brand), typeof(string), typeof(FaIcon),
+        DependencyProperty.Register(nameof(Brand), typeof(string), typeof(FontAwesomeIcon),
             new PropertyMetadata(null, OnPropertyChanged));
 
     private const string FaBrandsFontFamily =
@@ -30,7 +30,7 @@ public class FaIcon : FontIcon
 
     private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is FaIcon icon)
+        if (d is FontAwesomeIcon icon)
         {
             icon.UpdateIcon();
         }
@@ -65,7 +65,7 @@ public class FaIcon : FontIcon
                 "fa-copy" => "\uf0c5",
                 "fa-globe" => "\uf0ac",
                 "fa-wrench" => "\uf0ad",
-                _ => "\uf128"
+                _ => string.Empty
             };
         }
         else
