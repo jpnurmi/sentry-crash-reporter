@@ -87,7 +87,7 @@ public partial class App : Application
 
         var scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
         MainWindow.AppWindow.Resize(new SizeInt32
-            { Width = (int)Math.Round(960 * scale), Height = (int)Math.Round(720 * scale) });
+            { Width = (int)Math.Round(860 * scale), Height = (int)Math.Round(640 * scale) });
 
 #if DEBUG
         MainWindow.UseStudio();
