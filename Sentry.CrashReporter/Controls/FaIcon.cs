@@ -10,24 +10,22 @@ public class FaIcon : FontIcon
         DependencyProperty.Register(nameof(Brand), typeof(string), typeof(FaIcon),
             new PropertyMetadata(null, OnPropertyChanged));
 
+    private const string FaBrandsFontFamily =
+        "ms-appx:///Assets/Fonts/FontAwesome/Font Awesome 7 Brands-Regular-400.otf#Font Awesome 7 Brands";
+
+    private const string FaSolidFontFamily =
+        "ms-appx:///Assets/Fonts/FontAwesome/Font Awesome 7 Free-Solid-900.otf#Font Awesome 7 Free Solid";
+
     public string? Icon
     {
         get => (string?)GetValue(IconProperty);
-        set
-        {
-            FontFamily = "Font Awesome 7 Free";
-            SetValue(IconProperty, value);
-        }
+        set => SetValue(IconProperty, value);
     }
 
     public string? Brand
     {
-        get => (string?)GetValue(IconProperty);
-        set
-        {
-            FontFamily = "Font Awesome 7 Brands";
-            SetValue(IconProperty, value);
-        }
+        get => (string?)GetValue(BrandProperty);
+        set => SetValue(BrandProperty, value);
     }
 
     private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -46,28 +44,31 @@ public class FaIcon : FontIcon
             return;
         }
 
-        Icon = Brand?.ToLower() switch
+        if (!string.IsNullOrEmpty(Brand))
         {
-            "android" => "fa-android",
-            "linux" => "fa-linux",
-            "windows" => "fa-windows",
-            "apple" => "fa-apple",
-            "macos" => "fa-apple",
-            "ios" => "fa-apple",
-            "tvos" => "fa-apple",
-            "visionos" => "fa-apple",
-            "watchos" => "fa-apple",
-            _ => null
-        } ?? Icon;
-
-        Glyph = Icon?.ToLower() switch
+            FontFamily = FaBrandsFontFamily;
+            Glyph = Brand.ToLower() switch
+            {
+                "android" => "\uf17b",
+                "linux" => "\uf17c",
+                "windows" => "\uf17a",
+                "apple" or "macos" or "ios" or "tvos" or "visionos" or "watchos" => "\uf179",
+                _ => string.Empty
+            };
+        }
+        else if (!string.IsNullOrEmpty(Icon))
         {
-            "fa-bug" => "\uf188",
-            "fa-android" => "\uf17b",
-            "fa-linux" => "\uf17c",
-            "fa-windows" => "\uf17a",
-            "fa-apple" => "\uf179",
-            _ => null
-        } ?? string.Empty;
+            FontFamily = FaSolidFontFamily;
+            Glyph = Icon.ToLower() switch
+            {
+                "fa-exclamation" => "\uf12a",
+                "fa-bug" => "\uf188",
+                _ => string.Empty
+            };
+        }
+        else
+        {
+            Glyph = string.Empty;
+        }
     }
 }
