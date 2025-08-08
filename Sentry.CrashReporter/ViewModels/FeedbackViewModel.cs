@@ -6,16 +6,12 @@ namespace Sentry.CrashReporter.ViewModels;
 public partial class FeedbackViewModel : ObservableObject
 {
     private Envelope? _envelope;
-    [ObservableProperty]
-    private string? _dsn;
-    [ObservableProperty]
-    private string? _eventId;
-    [ObservableProperty]
-    private string _description = string.Empty;
-    [ObservableProperty]
-    private string _email = string.Empty;
-    [ObservableProperty]
-    private string _name = string.Empty;
+    [ObservableProperty] private string? _dsn;
+    [ObservableProperty] private string? _eventId;
+    [ObservableProperty] private string _description = string.Empty;
+    [ObservableProperty] private string _email = string.Empty;
+    [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private bool _isEnabled;
 
     public FeedbackViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {
@@ -40,11 +36,10 @@ public partial class FeedbackViewModel : ObservableObject
         get => _envelope;
         set
         {
-            SetProperty(ref _envelope, value);
             Dsn = value?.TryGetDsn();
             EventId = value?.TryGetEventId();
+            IsEnabled = EventId is not null && !string.IsNullOrWhiteSpace(Dsn);
+            SetProperty(ref _envelope, value);
         }
     }
-
-    public bool IsEnabled => EventId != null && !string.IsNullOrWhiteSpace(Dsn);
 }
