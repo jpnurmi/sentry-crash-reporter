@@ -128,6 +128,7 @@ public class IconLabel : StackPanel
                 var dataPackage = new DataPackage();
                 dataPackage.SetText(Text ?? string.Empty);
                 Clipboard.SetContent(dataPackage);
+                _ = Toast.Show(this, null, "Copied to clipboard", Text ?? string.Empty);
             };
             Children.Add(icon);
         }
