@@ -9,7 +9,7 @@ public static class TextBoxExtensions
             .BorderBrush(Colors.Transparent)
             .BorderThickness(new Thickness(0))
             .CornerRadius(0)
-            .FontFamily("Source Code Pro")
+            .FontFamily("ms-appx:///Assets/Fonts/SourceCodePro/SourceCodePro-Regular.ttf#Source Code Pro")
             .IsReadOnly(true);
     }
 }
