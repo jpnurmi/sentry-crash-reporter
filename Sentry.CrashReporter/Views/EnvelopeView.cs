@@ -20,13 +20,13 @@ public sealed class EnvelopeView : Page
                         .ColumnSpacing(16)
                         .Children(
                             new AppBarButton()
-                                .Grid(column: 0)
+                                .Grid(0)
                                 .ToolTip("Back")
-                                .Icon(new FontAwesomeIcon().Icon("fa-arrow-left"))
+                                .Icon(new FontAwesomeIcon(FA.ArrowLeft))
                                 .LabelPosition(CommandBarLabelPosition.Collapsed)
                                 .Command(new RelayCommand(() => (Window.Current?.Content as Frame)?.GoBack())),
                             new StackPanel()
-                                .Grid(column: 1)
+                                .Grid(1)
                                 .VerticalAlignment(VerticalAlignment.Center)
                                 .Children(
                                     new SelectableTextBlock()
@@ -36,9 +36,9 @@ public sealed class EnvelopeView : Page
                                         .Style(ThemeResource.Get<Style>("CaptionTextBlockStyle"))
                                         .Text(x => x.Binding(() => vm.Directory))),
                             new AppBarButton()
-                                .Grid(column: 2)
+                                .Grid(2)
                                 .ToolTip("Open")
-                                .Icon(new FontAwesomeIcon().Icon("fa-share"))
+                                .Icon(new FontAwesomeIcon(FA.Share))
                                 .LabelPosition(CommandBarLabelPosition.Collapsed)
                                 .Command(() => vm.LaunchCommand)),
                     new ScrollViewer()

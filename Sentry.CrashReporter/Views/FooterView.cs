@@ -14,8 +14,7 @@ public sealed partial class FooterView : Page
                 .ColumnSpacing(8)
                 .ColumnDefinitions("Auto,*,Auto,Auto")
                 .Children(
-                    new IconLabel()
-                        .Awesome("fa-copy")
+                    new IconLabel(FA.Copy)
                         .ToolTip("Event ID")
                         .Text(x => x.Binding(() => vm.ShortEventId))
                         .Grid(0),

@@ -12,8 +12,8 @@ public class IconLabel : StackPanel
         DependencyProperty.Register(nameof(Symbol), typeof(Symbol?), typeof(IconLabel),
             new PropertyMetadata(null, OnPropertyChanged));
 
-    public static readonly DependencyProperty AwesomeProperty =
-        DependencyProperty.Register(nameof(Awesome), typeof(string), typeof(IconLabel),
+    public static readonly DependencyProperty SolidProperty =
+        DependencyProperty.Register(nameof(Solid), typeof(string), typeof(IconLabel),
             new PropertyMetadata(null, OnPropertyChanged));
 
     public static readonly DependencyProperty BrandProperty =
@@ -32,6 +32,16 @@ public class IconLabel : StackPanel
         DependencyProperty.Register(nameof(IsTextSelectionEnabled), typeof(bool), typeof(IconLabel),
             new PropertyMetadata(true, OnPropertyChanged));
 
+    public IconLabel(string? icon = null)
+    {
+        Solid = icon;
+        Orientation = Orientation.Horizontal;
+        VerticalAlignment = VerticalAlignment.Center;
+        Spacing = 8;
+        Background = new SolidColorBrush(Colors.Transparent);
+        UpdateChildren();
+    }
+
     public FrameworkElement? Icon
     {
         get => (FrameworkElement?)GetValue(IconProperty);
@@ -44,10 +54,10 @@ public class IconLabel : StackPanel
         set => SetValue(SymbolProperty, value);
     }
 
-    public string? Awesome
+    public string? Solid
     {
-        get => (string?)GetValue(AwesomeProperty);
-        set => SetValue(AwesomeProperty, value);
+        get => (string?)GetValue(SolidProperty);
+        set => SetValue(SolidProperty, value);
     }
 
     public string? Brand
@@ -74,15 +84,6 @@ public class IconLabel : StackPanel
         set => SetValue(IsTextSelectionEnabledProperty, value);
     }
 
-    public IconLabel()
-    {
-        Orientation = Orientation.Horizontal;
-        VerticalAlignment = VerticalAlignment.Center;
-        Spacing = 8;
-        Background = new SolidColorBrush(Colors.Transparent);
-        UpdateChildren();
-    }
-
     private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is IconLabel label)
@@ -106,13 +107,13 @@ public class IconLabel : StackPanel
         {
             if (Symbol is { } symbol)
             {
-                icon = new SymbolIcon().Symbol(symbol);
+                icon = new SymbolIcon(symbol);
             }
-            else if (!string.IsNullOrEmpty(Awesome))
+            else if (Solid is { } solid)
             {
-                icon = new FontAwesomeIcon().Icon(Awesome);
+                icon = new FontAwesomeIcon().Solid(solid);
             }
-            else if (!string.IsNullOrEmpty(Brand))
+            else if (Brand is { } brand)
             {
                 icon = new FontAwesomeIcon().Brand(Brand);
             }

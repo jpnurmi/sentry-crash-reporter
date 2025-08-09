@@ -25,30 +25,27 @@ public sealed partial class HeaderView : Page
                                 .Margin(-4, 0)
                                 .Orientation(Orientation.Horizontal)
                                 .Children(
-                                    new IconLabel()
+                                    new IconLabel(FA.Bug)
                                         .Margin(8, 4)
-                                        .Awesome("fa-bug")
                                         .ToolTip(x => x.Binding(() => vm.ExceptionValue))
                                         .Text(x => x.Binding(() => vm.ExceptionType))
                                         .Visibility(x =>
                                             x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.ExceptionType))),
-                                    new IconLabel()
+                                    new IconLabel(FA.Globe)
                                         .Margin(8, 4)
-                                        .Awesome("fa-globe")
                                         .ToolTip("Release")
                                         .Text(x => x.Binding(() => vm.Release))
                                         .Visibility(x =>
                                             x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Release))),
                                     new IconLabel()
                                         .Margin(8, 4)
-                                        .Brand(x => x.Binding(() => vm.OsName))
+                                        .Brand(x => x.Binding(() => vm.OsName).Convert(ToBrand))
                                         .ToolTip("Operating System")
                                         .Text(x => x.Binding(() => vm.Os))
                                         .Visibility(x =>
                                             x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Os))),
-                                    new IconLabel()
+                                    new IconLabel(FA.Wrench)
                                         .Margin(8, 4)
-                                        .Awesome("fa-wrench")
                                         .ToolTip("Environment")
                                         .Text(x => x.Binding(() => vm.Environment))
                                         .Visibility(x =>
@@ -67,7 +64,8 @@ public sealed partial class HeaderView : Page
                         .Resources(r => r
                             .Add("ButtonBackgroundPointerOver", new SolidColorBrush(Colors.Transparent))
                             .Add("ButtonBackgroundPressed", new SolidColorBrush(Colors.Transparent))
-                            .Add("ButtonBorderBrushPointerOver", new SolidColorBrush(Colors.Transparent))
+                            .Add("ButtonBorderBrushPointerOver",
+                                new SolidColorBrush(Colors.Transparent))
                             .Add("ButtonBorderBrushPressed", new SolidColorBrush(Colors.Transparent)))
                         .Command(new RelayCommand(() =>
                             (Window.Current?.Content as Frame)?.Navigate(typeof(EnvelopeView))))));
@@ -76,5 +74,17 @@ public sealed partial class HeaderView : Page
     private static Visibility ToVisibility(string? value)
     {
         return string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    private static string? ToBrand(string? value)
+    {
+        return value?.ToLower() switch
+        {
+            "android" => FA.Android,
+            "linux" => FA.Linux,
+            "windows" => FA.Windows,
+            "apple" or "macos" or "ios" or "tvos" or "visionos" or "watchos" => FA.Apple,
+            _ => null
+        };
     }
 }
