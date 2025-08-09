@@ -14,23 +14,35 @@ public sealed class EnvelopeView : Page
             .Content(new Grid()
                 .RowDefinitions("Auto,*")
                 .Children(
-                    new StackPanel()
-                        .Orientation(Orientation.Horizontal)
-                        .Spacing(16)
+                    new Grid()
+                        .Grid(row: 0)
+                        .ColumnDefinitions("Auto,*,Auto")
+                        .ColumnSpacing(16)
                         .Children(
                             new AppBarButton()
-                                .Icon(new SymbolIcon(Symbol.Back))
-                                .Label("Back")
+                                .Grid(column: 0)
+                                .ToolTip("Back")
+                                .Icon(new FontAwesomeIcon().Icon("fa-arrow-left"))
+                                .LabelPosition(CommandBarLabelPosition.Collapsed)
                                 .Command(new RelayCommand(() => (Window.Current?.Content as Frame)?.GoBack())),
-                            new SelectableTextBlock()
-                                .FontSize(16)
-                                .WithSourceCodePro()
-                                .Text(x => x.Binding(() => vm.EventId))
+                            new StackPanel()
+                                .Grid(column: 1)
                                 .VerticalAlignment(VerticalAlignment.Center)
-                        )
-                        .Grid(row: 0),
-
+                                .Children(
+                                    new SelectableTextBlock()
+                                        .Style(ThemeResource.Get<Style>("SubtitleTextBlockStyle"))
+                                        .Text(x => x.Binding(() => vm.FileName)),
+                                    new SelectableTextBlock()
+                                        .Style(ThemeResource.Get<Style>("CaptionTextBlockStyle"))
+                                        .Text(x => x.Binding(() => vm.Directory))),
+                            new AppBarButton()
+                                .Grid(column: 2)
+                                .ToolTip("Open")
+                                .Icon(new FontAwesomeIcon().Icon("fa-share"))
+                                .LabelPosition(CommandBarLabelPosition.Collapsed)
+                                .Command(() => vm.LaunchCommand)),
                     new ScrollViewer()
+                        .Grid(row: 1)
                         .Content(new StackPanel()
                             .Children(
                                 new SelectableTextBlock()
@@ -48,13 +60,6 @@ public sealed class EnvelopeView : Page
                                             )
                                             .Content(new SelectableTextBlock()
                                                 .WithSourceCodePro()
-                                                .Text(x => x.Binding("Payload"))
-                                            )
-                                    )
-                            )
-                        )
-                        .Grid(row: 1)
-                )
-            );
+                                                .Text(x => x.Binding("Payload"))))))));
     }
 }

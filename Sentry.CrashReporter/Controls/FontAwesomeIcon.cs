@@ -61,9 +61,12 @@ public class FontAwesomeIcon : FontIcon
             FontFamily = FaSolidFontFamily;
             Glyph = Icon.ToLower() switch
             {
+                "fa-arrow-left" => "\uf060",
                 "fa-bug" => "\uf188",
+                "fa-chevron-left" => "\uf053",
                 "fa-copy" => "\uf0c5",
                 "fa-globe" => "\uf0ac",
+                "fa-share" => "\uf064",
                 "fa-wrench" => "\uf0ad",
                 _ => string.Empty
             };

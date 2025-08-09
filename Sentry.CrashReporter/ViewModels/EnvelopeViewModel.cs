@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.UI.Dispatching;
 using Sentry.CrashReporter.Services;
+using Path = System.IO.Path;
 
 namespace Sentry.CrashReporter.ViewModels;
 
@@ -9,25 +11,27 @@ public record FormattedEnvelopeItem(string Header, string Payload);
 public partial class EnvelopeViewModel : ObservableObject
 {
     private Envelope? _envelope;
-    [ObservableProperty]
-    private string? _eventId;
-    [ObservableProperty]
-    private string? _header;
-    [ObservableProperty]
-    private List<FormattedEnvelopeItem>? _items;
+    [ObservableProperty] private string? _eventId;
+    [ObservableProperty] private string? _header;
+    [ObservableProperty] private List<FormattedEnvelopeItem>? _items;
 
     public EnvelopeViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {
-        if (!string.IsNullOrEmpty(config.Value?.FilePath))
+        FilePath = config.Value.FilePath;
+        if (!string.IsNullOrEmpty(FilePath))
         {
             var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             Task.Run(async () =>
             {
-                var envelope = await service.LoadAsync(config.Value.FilePath);
+                var envelope = await service.LoadAsync(FilePath);
                 dispatcherQueue.TryEnqueue(() => Envelope = envelope);
             });
         }
     }
+
+    public string? FilePath { get; }
+    public string? FileName => Path.GetFileName(FilePath);
+    public string? Directory => Path.GetDirectoryName(FilePath);
 
     public Envelope? Envelope
     {
@@ -49,7 +53,8 @@ public partial class EnvelopeViewModel : ObservableObject
                     var json = JsonDocument.Parse(item.Payload)?.RootElement;
                     var payload = JsonSerializer.Serialize(json, options);
                     items.Add(new FormattedEnvelopeItem(header, payload));
-                } catch (JsonException ex)
+                }
+                catch (JsonException ex)
                 {
                     const int maxLen = 32;
                     var hex = BitConverter.ToString(item.Payload.Take(maxLen).ToArray()).Replace("-", " ");
@@ -57,10 +62,57 @@ public partial class EnvelopeViewModel : ObservableObject
                     {
                         hex += "...";
                     }
+
                     items.Add(new FormattedEnvelopeItem(header, hex));
                 }
             }
+
             Items = items;
+        }
+    }
+
+    private bool CanLaunch()
+    {
+        return !string.IsNullOrWhiteSpace(FilePath);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanLaunch))]
+    private void Launch()
+    {
+        var launched = false;
+        try
+        {
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = FilePath,
+                UseShellExecute = true
+            });
+            if (process?.WaitForExit(TimeSpan.FromSeconds(3)) == true)
+            {
+                launched = process.ExitCode == 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            launched = false;
+        }
+
+        if (!launched)
+        {
+            if (OperatingSystem.IsMacOS())
+            {
+                // reveal in Finder
+                Process.Start("open", ["-R", FilePath!]);
+            }
+            else
+            {
+                // open directory
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = Directory,
+                    UseShellExecute = true
+                });
+            }
         }
     }
 }

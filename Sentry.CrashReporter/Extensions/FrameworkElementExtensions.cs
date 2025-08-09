@@ -2,12 +2,12 @@ namespace Sentry.CrashReporter.Extensions;
 
 public static class FrameworkElementExtensions
 {
-    public static FrameworkElement ToolTip(this FrameworkElement element, string toolTip)
+    public static T ToolTip<T>(this T element, string toolTip) where T : FrameworkElement
     {
         return element.ToolTipService(null, null, toolTip);
     }
 
-    public static FrameworkElement ToolTip(this FrameworkElement element, Action<IDependencyPropertyBuilder<string>> toolTip)
+    public static T ToolTip<T>(this T element, Action<IDependencyPropertyBuilder<string>> toolTip) where T : FrameworkElement
     {
         return element.ToolTipService(null, null, toolTip);
     }

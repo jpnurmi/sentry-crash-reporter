@@ -56,6 +56,7 @@ public sealed partial class HeaderView : Page
                     new Button()
                         .Grid(1)
                         .Padding(0)
+                        .IsTabStop(false)
                         .Background(Colors.Transparent)
                         .BorderBrush(Colors.Transparent)
                         .VerticalAlignment(VerticalAlignment.Top)
