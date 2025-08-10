@@ -1,6 +1,19 @@
 namespace Sentry.CrashReporter.Services;
 
-public class SentryClient(HttpClient httpClient)
+public interface ISentryClient
+{
+    public Task SubmitEnvelopeAsync(Envelope envelope, CancellationToken cancellationToken = default);
+
+    public Task SubmitFeedbackAsync(
+        string dsn,
+        string email,
+        string name,
+        string message,
+        string? associatedEventId,
+        CancellationToken cancellationToken = default);
+}
+
+public class SentryClient(HttpClient httpClient) : ISentryClient
 {
     public async Task SubmitEnvelopeAsync(Envelope envelope, CancellationToken cancellationToken = default)
     {

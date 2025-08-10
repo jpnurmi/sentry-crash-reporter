@@ -4,7 +4,7 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed class EnvelopeView : Page
+public sealed class EnvelopeView : ReactiveUserControl<EnvelopeViewModel>
 {
     public EnvelopeView()
     {

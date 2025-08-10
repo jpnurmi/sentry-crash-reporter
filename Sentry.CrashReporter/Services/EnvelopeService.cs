@@ -3,7 +3,12 @@ using System.Security.Cryptography;
 
 namespace Sentry.CrashReporter.Services;
 
-public class EnvelopeService
+public interface IEnvelopeService
+{
+    public ValueTask<Envelope?> LoadAsync(string filePath, CancellationToken cancellationToken = default);
+}
+
+public class EnvelopeService : IEnvelopeService
 {
     private Envelope? _cachedEnvelope;
     private string? _cachedHash;

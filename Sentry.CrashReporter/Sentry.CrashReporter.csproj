@@ -62,6 +62,7 @@
 
     <ItemGroup>
         <PackageReference Include="KaitaiStruct.Runtime.CSharp"/>
+        <PackageReference Include="ReactiveUI.Uno.WinUI" />
     </ItemGroup>
 
 </Project>

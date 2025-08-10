@@ -3,7 +3,7 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed partial class FooterView : Page
+public sealed class FooterView : ReactiveUserControl<FeedbackViewModel>
 {
     public FooterView()
     {

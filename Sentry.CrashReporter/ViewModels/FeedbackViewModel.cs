@@ -1,45 +1,66 @@
-using Microsoft.UI.Dispatching;
 using Sentry.CrashReporter.Services;
 
 namespace Sentry.CrashReporter.ViewModels;
 
-public partial class FeedbackViewModel : ObservableObject
+public class FeedbackViewModel : ReactiveObject
 {
     private Envelope? _envelope;
-    [ObservableProperty] private string? _dsn;
-    [ObservableProperty] private string? _eventId;
-    [ObservableProperty] private string _description = string.Empty;
-    [ObservableProperty] private string _email = string.Empty;
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private bool _isEnabled;
+    private readonly ObservableAsPropertyHelper<string?> _dsn;
+    private readonly ObservableAsPropertyHelper<string?> _eventId;
+    private readonly ObservableAsPropertyHelper<bool> _isEnabled;
+    private string? _description;
+    private string? _email;
+    private string? _name;
 
-    public FeedbackViewModel(EnvelopeService service, IOptions<AppConfig> config)
+    private string? Dsn => _dsn.Value;
+    private string? EventId => _eventId.Value;
+    public bool IsEnabled => _isEnabled.Value;
+
+    public string Description
     {
-        if (!string.IsNullOrEmpty(config.Value?.FilePath))
-        {
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            Task.Run(async () =>
-            {
-                var envelope = await service.LoadAsync(config.Value.FilePath);
-                dispatcherQueue.TryEnqueue(() => Envelope = envelope);
+        get => _description ?? string.Empty;
+        set => this.RaiseAndSetIfChanged(ref _description, value);
+    }
 
-                // TODO: do we want to pre-fill the user information?
-                // var user = envelope.TryGetEvent()?.TryGetPayload("user");
-                // Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
-                // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
-            });
-        }
+    public string Email
+    {
+        get => _email ?? string.Empty;
+        set => this.RaiseAndSetIfChanged(ref _email, value);
+    }
+
+    public string Name
+    {
+        get => _name ?? string.Empty;
+        set => this.RaiseAndSetIfChanged(ref _name, value);
     }
 
     private Envelope? Envelope
     {
         get => _envelope;
-        set
+        set => this.RaiseAndSetIfChanged(ref _envelope, value);
+    }
+
+    public FeedbackViewModel(EnvelopeService service, IOptions<AppConfig> config)
+    {
+        this.WhenAnyValue(x => x.Envelope, e => e?.TryGetDsn())
+            .ToProperty(this, x => x.Dsn, out _dsn);
+
+        this.WhenAnyValue(x => x.Envelope, e => e?.TryGetEventId())
+            .ToProperty(this, x => x.EventId, out _eventId);
+
+        this.WhenAnyValue(x => x.Dsn, y => y.EventId, (x, y) => !string.IsNullOrWhiteSpace(x) && !string.IsNullOrWhiteSpace(y))
+            .ToProperty(this, x => x.IsEnabled, out _isEnabled);
+
+        // TODO: do we want to pre-fill the user information?
+        // var user = envelope.TryGetEvent()?.TryGetPayload("user");
+        // Name = user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
+        // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
+
+        if (!string.IsNullOrEmpty(config?.Value.FilePath))
         {
-            Dsn = value?.TryGetDsn();
-            EventId = value?.TryGetEventId();
-            IsEnabled = EventId is not null && !string.IsNullOrWhiteSpace(Dsn);
-            SetProperty(ref _envelope, value);
+            Observable.FromAsync(() => service.LoadAsync(config.Value.FilePath).AsTask())
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(value => Envelope = value);
         }
     }
 }

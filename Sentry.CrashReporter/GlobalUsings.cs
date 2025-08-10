@@ -8,3 +8,6 @@ global using ApplicationExecutionState = Windows.ApplicationModel.Activation.App
 global using Color = Windows.UI.Color;
 global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
+global using ReactiveUI;
+global using ReactiveUI.Uno;
+global using System.Reactive.Linq;

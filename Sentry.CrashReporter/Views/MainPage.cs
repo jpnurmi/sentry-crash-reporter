@@ -2,14 +2,15 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed class MainPage : Page
+public sealed class MainPage : ReactivePage<LoadingViewModel>
 {
     public MainPage()
     {
         var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<LoadingViewModel>();
-        this.Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
+        this.DataContext(vm)
+            .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new LoadingView()
-                .Source(vm)
+                .Source(() => vm)
                 .LoadingContent(new ProgressRing()
                     .Width(72)
                     .Height(72))

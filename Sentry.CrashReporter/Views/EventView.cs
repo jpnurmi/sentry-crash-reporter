@@ -8,7 +8,7 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed partial class EventView : UserControl
+public sealed class EventView : ReactiveUserControl<EventViewModel>
 {
     public EventView()
     {

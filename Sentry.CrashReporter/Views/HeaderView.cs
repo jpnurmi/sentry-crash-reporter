@@ -3,7 +3,7 @@ using Sentry.CrashReporter.ViewModels;
 
 namespace Sentry.CrashReporter.Views;
 
-public sealed partial class HeaderView : Page
+public sealed class HeaderView : ReactiveUserControl<FeedbackViewModel>
 {
     public HeaderView()
     {
