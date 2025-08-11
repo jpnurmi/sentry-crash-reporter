@@ -7,17 +7,17 @@ namespace Sentry.CrashReporter.ViewModels;
 public partial class HeaderViewModel : ObservableObject
 {
     [ObservableProperty] private EnvelopeItem? _event;
-    [ObservableProperty] private string? _eventId;
+    [ObservableProperty] private string? _eventId = string.Empty;
     [ObservableProperty] private DateTime? _timestamp;
-    [ObservableProperty] private string? _platform;
-    [ObservableProperty] private string? _level;
-    [ObservableProperty] private string? _os;
-    [ObservableProperty] private string? _osName;
-    [ObservableProperty] private string? _osVersion;
-    [ObservableProperty] private string? _release;
-    [ObservableProperty] private string? _environment;
-    [ObservableProperty] private string? _exceptionType;
-    [ObservableProperty] private string? _exceptionValue;
+    [ObservableProperty] private string? _platform = string.Empty;
+    [ObservableProperty] private string? _level = string.Empty;
+    [ObservableProperty] private string? _os = string.Empty;
+    [ObservableProperty] private string? _osName = string.Empty;
+    [ObservableProperty] private string? _osVersion = string.Empty;
+    [ObservableProperty] private string? _release = string.Empty;
+    [ObservableProperty] private string? _environment = string.Empty;
+    [ObservableProperty] private string? _exceptionType = string.Empty;
+    [ObservableProperty] private string? _exceptionValue = string.Empty;
 
     public HeaderViewModel(EnvelopeService service, IOptions<AppConfig> config)
     {

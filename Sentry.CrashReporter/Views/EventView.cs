@@ -39,6 +39,7 @@ public sealed partial class EventView : UserControl
                         .Header("Additional Data")
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+                        .IsEnabled(x => x.Binding(() => vm.Extra).Convert(IsNotNullOrEmpty))
                         .Visibility(x => x.Binding(() => vm.Extra).Convert(ToVisibility))
                         .Content(new JsonGrid()
                             .Data(x => x.Binding(() => vm.Extra))),
@@ -53,6 +54,7 @@ public sealed partial class EventView : UserControl
                         .Header("Attachments")
                         .HorizontalAlignment(HorizontalAlignment.Stretch)
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+                        .IsEnabled(x => x.Binding(() => vm.Attachments).Convert(IsNotNullOrEmpty))
                         .Visibility(x => x.Binding(() => vm.Attachments).Convert(ToVisibility))
                         .Content(new AttachmentGrid()
                             .Data(x => x.Binding(() => vm.Attachments))

@@ -30,26 +30,26 @@ public sealed partial class HeaderView : Page
                                         .ToolTip(x => x.Binding(() => vm.ExceptionValue))
                                         .Text(x => x.Binding(() => vm.ExceptionType))
                                         .Visibility(x =>
-                                            x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.ExceptionType))),
+                                            x.Binding(() => vm.ExceptionType).Convert(_ => ToVisibility(vm.ExceptionType))),
                                     new IconLabel(FA.Globe)
                                         .Margin(8, 4)
                                         .ToolTip("Release")
                                         .Text(x => x.Binding(() => vm.Release))
                                         .Visibility(x =>
-                                            x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Release))),
+                                            x.Binding(() => vm.Release).Convert(_ => ToVisibility(vm.Release))),
                                     new IconLabel()
                                         .Margin(8, 4)
                                         .Brand(x => x.Binding(() => vm.OsName).Convert(ToBrand))
                                         .ToolTip("Operating System")
                                         .Text(x => x.Binding(() => vm.Os))
                                         .Visibility(x =>
-                                            x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Os))),
+                                            x.Binding(() => vm.Os).Convert(_ => ToVisibility(vm.Os))),
                                     new IconLabel(FA.Wrench)
                                         .Margin(8, 4)
                                         .ToolTip("Environment")
                                         .Text(x => x.Binding(() => vm.Environment))
                                         .Visibility(x =>
-                                            x.Binding(() => vm.Event).Convert(_ => ToVisibility(vm.Environment))))),
+                                            x.Binding(() => vm.Environment).Convert(_ => ToVisibility(vm.Environment))))),
                     new Button()
                         .Grid(1)
                         .Padding(0)
