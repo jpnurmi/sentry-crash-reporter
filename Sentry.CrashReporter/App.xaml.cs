@@ -89,7 +89,7 @@ public partial class App : Application
 
         var scale = DisplayInformation.GetForCurrentView().RawPixelsPerViewPixel;
         MainWindow.AppWindow.Resize(new SizeInt32
-            { Width = (int)Math.Round(800 * scale), Height = (int)Math.Round(560 * scale) });
+            { Width = (int)Math.Round(900 * scale), Height = (int)Math.Round(600 * scale) });
 
         var view = ApplicationView.GetForCurrentView();
         view.SetPreferredMinSize(new Size(600, 400));
