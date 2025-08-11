@@ -7,6 +7,8 @@ using Kaitai;
 
 namespace Sentry.CrashReporter.Models;
 
+#pragma warning disable CS8618, CS8625, CS8123
+
 /// <summary>
 ///     Windows MiniDump (MDMP) file provides a concise way to store process
 ///     core dumps, which is useful for debugging. Given its small size,
@@ -805,3 +807,5 @@ public class Minidump : KaitaiStruct
 
     public KaitaiStruct M_Parent { get; }
 }
+
+#pragma warning restore CS8618, CS8625, CS8123
