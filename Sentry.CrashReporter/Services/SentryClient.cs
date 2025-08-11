@@ -41,7 +41,7 @@ public class SentryClient(HttpClient httpClient)
     {
         var feedback = Envelope.FromJson(new { dsn },
             [
-                (header: new { type = "feedback" }, payload: new
+                (Header: new { type = "feedback" }, Payload: new
                 {
                     contexts = new
                     {

@@ -76,7 +76,7 @@ public sealed partial class HeaderView : Page
         return string.IsNullOrEmpty(value) ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private static string? ToBrand(string? value)
+    private static string ToBrand(string? value)
     {
         return value?.ToLower() switch
         {
@@ -84,7 +84,7 @@ public sealed partial class HeaderView : Page
             "linux" => FA.Linux,
             "windows" => FA.Windows,
             "apple" or "macos" or "ios" or "tvos" or "visionos" or "watchos" => FA.Apple,
-            _ => null
+            _ => string.Empty
         };
     }
 }

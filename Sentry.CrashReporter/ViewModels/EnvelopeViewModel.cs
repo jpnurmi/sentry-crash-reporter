@@ -54,7 +54,7 @@ public partial class EnvelopeViewModel : ObservableObject
                     var payload = JsonSerializer.Serialize(json, options);
                     items.Add(new FormattedEnvelopeItem(header, payload));
                 }
-                catch (JsonException ex)
+                catch (JsonException)
                 {
                     const int maxLen = 32;
                     var hex = BitConverter.ToString(item.Payload.Take(maxLen).ToArray()).Replace("-", " ");
@@ -92,7 +92,7 @@ public partial class EnvelopeViewModel : ObservableObject
                 launched = process.ExitCode == 0;
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             launched = false;
         }

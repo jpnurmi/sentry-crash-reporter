@@ -76,7 +76,7 @@ public class JsonGrid : Grid
                 .CornerRadius(new CornerRadius(0, 2, 2, 0))
                 .Padding(new Thickness(8, 2, 4, 2))
                 .Child(new SelectableTextBlock()
-                    .Text(kvp.Value?.ToString() ?? "")
+                    .Text(kvp.Value?.ToString() ?? string.Empty)
                     .TextWrapping(TextWrapping.Wrap)));
 
             row++;
