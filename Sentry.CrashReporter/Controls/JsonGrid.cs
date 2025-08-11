@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using Sentry.CrashReporter.Extensions;
 
 namespace Sentry.CrashReporter.Controls;
 
@@ -68,6 +69,7 @@ public class JsonGrid : Grid
                 .CornerRadius(new CornerRadius(2, 0, 0, 2))
                 .Padding(new Thickness(4, 2, 8, 2))
                 .Child(new SelectableTextBlock()
+                    .WithSourceCodePro()
                     .Text(kvp.Key)));
 
             Children.Add(new Border()
@@ -76,6 +78,7 @@ public class JsonGrid : Grid
                 .CornerRadius(new CornerRadius(0, 2, 2, 0))
                 .Padding(new Thickness(8, 2, 4, 2))
                 .Child(new SelectableTextBlock()
+                    .WithSourceCodePro()
                     .Text(kvp.Value?.ToString() ?? string.Empty)
                     .TextWrapping(TextWrapping.Wrap)));
 
