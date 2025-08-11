@@ -1,4 +1,7 @@
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json.Nodes;
+using Windows.Storage.Streams;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Sentry.CrashReporter.Controls;
 using Sentry.CrashReporter.Extensions;
 using Sentry.CrashReporter.ViewModels;
@@ -52,7 +55,8 @@ public sealed partial class EventView : UserControl
                         .HorizontalContentAlignment(HorizontalAlignment.Stretch)
                         .Visibility(x => x.Binding(() => vm.Attachments).Convert(ToVisibility))
                         .Content(new AttachmentGrid()
-                            .Data(x => x.Binding(() => vm.Attachments)))));
+                            .Data(x => x.Binding(() => vm.Attachments))
+                            .OnPreview(a => _ = ShowPreview(a)))));
     }
 
     private static Visibility ToVisibility(object? obj)
@@ -69,6 +73,28 @@ public sealed partial class EventView : UserControl
             _ => obj is not null
         };
     }
+
+    private async Task ShowPreview(Attachment attachment)
+    {
+        var bitmap = new BitmapImage();
+        using (var randomAccessStream = new InMemoryRandomAccessStream())
+        {
+            await randomAccessStream.WriteAsync(attachment.Data.AsBuffer());
+            randomAccessStream.Seek(0);
+
+            await bitmap.SetSourceAsync(randomAccessStream);
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = attachment.Filename,
+            Content = new Image { Source = bitmap, Stretch = Stretch.Uniform },
+            CloseButtonText = "Close",
+            XamlRoot = XamlRoot
+        };
+
+        await dialog.ShowAsync();
+    }
 }
 
 internal class AttachmentGrid : Grid
@@ -76,6 +102,7 @@ internal class AttachmentGrid : Grid
     public AttachmentGrid()
     {
         ColumnDefinitions.Add(new ColumnDefinition().Width(new GridLength(1, GridUnitType.Star)));
+        ColumnDefinitions.Add(new ColumnDefinition().Width(GridLength.Auto));
         ColumnDefinitions.Add(new ColumnDefinition().Width(GridLength.Auto));
 
         DataContextChanged += (_, _) => TryAutoBind();
@@ -98,6 +125,14 @@ internal class AttachmentGrid : Grid
     {
         get => (List<Attachment>?)GetValue(DataProperty);
         set => SetValue(DataProperty, value);
+    }
+
+    public event Action<Attachment>? Preview;
+
+    public AttachmentGrid OnPreview(Action<Attachment> handler)
+    {
+        Preview += handler;
+        return this;
     }
 
     private void TryAutoBind()
@@ -150,6 +185,26 @@ internal class AttachmentGrid : Grid
                 .Child(new SelectableTextBlock()
                     .WithSourceCodePro()
                     .Text(ToHumanReadableSize(item.Data.Length))));
+
+            Children.Add(new Border()
+                .Grid(row: row, column: 2)
+                .Background(row % 2 == 0 ? evenBrush : oddBrush)
+                .CornerRadius(new CornerRadius(0, 2, 2, 0))
+                .Padding(new Thickness(8, 2, 4, 2))
+                .Child(new Button()
+                    .Content(new FontAwesomeIcon(FA.Eye).FontSize(12))
+                    .Background(Colors.Transparent)
+                    .BorderBrush(Colors.Transparent)
+                    .Resources(r => r
+                        .Add("ButtonBackgroundPointerOver", new SolidColorBrush(Colors.Transparent))
+                        .Add("ButtonBackgroundPressed", new SolidColorBrush(Colors.Transparent))
+                        .Add("ButtonBackgroundDisabled", new SolidColorBrush(Colors.Transparent))
+                        .Add("ButtonBorderBrushPointerOver",
+                            new SolidColorBrush(Colors.Transparent))
+                        .Add("ButtonBorderBrushPressed", new SolidColorBrush(Colors.Transparent))
+                        .Add("ButtonBorderBrushDisabled", new SolidColorBrush(Colors.Transparent)))
+                    .Command(new RelayCommand(() => Preview?.Invoke(item), () =>
+                        item.Filename.EndsWith(".png") || item.Filename.EndsWith(".jpg")))));
 
             row++;
         }
