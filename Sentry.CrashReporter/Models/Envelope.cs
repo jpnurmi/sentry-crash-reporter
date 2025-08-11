@@ -158,7 +158,7 @@ public sealed class Envelope(JsonObject header, IReadOnlyList<EnvelopeItem> item
         var envelopeItems = new List<EnvelopeItem>();
         foreach (var item in items)
         {
-            var itemHeader = JsonSerializer.SerializeToNode(header)!.AsObject();
+            var itemHeader = JsonSerializer.SerializeToNode(item.Header)!.AsObject();
             var itemPayload = JsonSerializer.SerializeToNode(item.Payload)!.AsObject();
             envelopeItems.Add(new EnvelopeItem(itemHeader!, Encoding.UTF8.GetBytes(itemPayload!.ToJsonString())));
         }
