@@ -34,8 +34,8 @@ public static class JsonExtensions
             ? timestamp
             : null;
     }
-    
-        public static JsonObject AsFlatObject(this JsonNode source)
+
+    public static JsonObject AsFlatObject(this JsonNode source)
     {
         var nodes = new Dictionary<string, JsonNode?>();
 
@@ -46,6 +46,7 @@ public static class JsonExtensions
         {
             result[kvp.Key] = kvp.Value?.DeepClone();
         }
+
         return result;
 
         void Flatten(JsonNode? node, string prefix)
@@ -58,6 +59,7 @@ public static class JsonExtensions
                         var newKey = string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
                         Flatten(value, newKey);
                     }
+
                     break;
 
                 case JsonArray array:
@@ -68,10 +70,12 @@ public static class JsonExtensions
                             var newKey = $"{prefix}[{i}]";
                             Flatten(array[i], newKey);
                         }
-                    } else {
-                        var joined = string.Join(", ", array.Select(n => n.FormatNode()));
-                        nodes[prefix] = JsonValue.Create("[" + joined + "]");
                     }
+                    else
+                    {
+                        nodes[prefix] = JsonValue.Create(string.Join(", ", array.Select(n => n.FormatNode())));
+                    }
+
                     break;
 
                 case JsonValue val:
