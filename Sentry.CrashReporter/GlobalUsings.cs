@@ -7,4 +7,5 @@ global using Sentry.CrashReporter.Models;
 global using ApplicationExecutionState = Windows.ApplicationModel.Activation.ApplicationExecutionState;
 global using Color = Windows.UI.Color;
 global using CommunityToolkit.Mvvm.ComponentModel;
+global using CommunityToolkit.Mvvm.DependencyInjection;
 global using CommunityToolkit.Mvvm.Input;

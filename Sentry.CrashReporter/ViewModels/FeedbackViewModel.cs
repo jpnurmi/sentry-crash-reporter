@@ -5,6 +5,7 @@ namespace Sentry.CrashReporter.ViewModels;
 
 public partial class FeedbackViewModel : ObservableObject
 {
+    private readonly ISentryClient _client;
     private Envelope? _envelope;
     [ObservableProperty] private string? _dsn;
     [ObservableProperty] private string? _eventId;
@@ -13,22 +14,42 @@ public partial class FeedbackViewModel : ObservableObject
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private bool _isEnabled;
 
-    public FeedbackViewModel(EnvelopeService service, IOptions<AppConfig> config)
+    partial void OnNameChanged(string value)
     {
-        if (!string.IsNullOrEmpty(config.Value?.FilePath))
-        {
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            Task.Run(async () =>
-            {
-                var envelope = await service.LoadAsync(config.Value.FilePath);
-                dispatcherQueue.TryEnqueue(() => Envelope = envelope);
+        UpdateFeedback();
+    }
 
-                // TODO: do we want to pre-fill the user information?
-                // var user = envelope.TryGetEvent()?.TryGetPayload("user");
-                // Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
-                // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
-            });
-        }
+    partial void OnEmailChanged(string value)
+    {
+        UpdateFeedback();
+    }
+
+    partial void OnDescriptionChanged(string value)
+    {
+        UpdateFeedback();
+    }
+
+    private void UpdateFeedback()
+    {
+        _client.UpdateFeedback(new Feedback(Name, Email, Description));
+    }
+
+    public FeedbackViewModel(IEnvelopeService? service = null, ISentryClient? client = null)
+    {
+        service ??= Ioc.Default.GetRequiredService<IEnvelopeService>();
+        _client = client ?? Ioc.Default.GetRequiredService<ISentryClient>();
+
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        Task.Run(async () =>
+        {
+            var envelope = await service.LoadAsync();
+            dispatcherQueue.TryEnqueue(() => Envelope = envelope);
+
+            // TODO: do we want to pre-fill the user information?
+            // var user = envelope.TryGetEvent()?.TryGetPayload("user");
+            // Name = (user?.TryGetProperty("username", out var value) == true ? value.GetString() : null) ?? string.Empty;
+            // Email = (user?.TryGetProperty("email", out value) == true ? value.GetString() : null) ?? string.Empty;
+        });
     }
 
     private Envelope? Envelope

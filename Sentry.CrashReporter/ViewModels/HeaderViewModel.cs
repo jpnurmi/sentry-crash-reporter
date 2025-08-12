@@ -19,17 +19,16 @@ public partial class HeaderViewModel : ObservableObject
     [ObservableProperty] private string? _exceptionType = string.Empty;
     [ObservableProperty] private string? _exceptionValue = string.Empty;
 
-    public HeaderViewModel(EnvelopeService service, IOptions<AppConfig> config)
+    public HeaderViewModel(IEnvelopeService? service = null)
     {
-        if (!string.IsNullOrEmpty(config.Value?.FilePath))
+        service ??= Ioc.Default.GetRequiredService<IEnvelopeService>();
+
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        Task.Run(async () =>
         {
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            Task.Run(async () =>
-            {
-                var envelope = (await service.LoadAsync(config.Value.FilePath));
-                dispatcherQueue.TryEnqueue(() => UpdateEvent(envelope));
-            });
-        }
+            var envelope = await service.LoadAsync();
+            dispatcherQueue.TryEnqueue(() => UpdateEvent(envelope));
+        });
     }
 
     private void UpdateEvent(Envelope? envelope)

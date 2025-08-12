@@ -5,32 +5,27 @@ namespace Sentry.CrashReporter.ViewModels;
 
 public partial class FooterViewModel : ObservableObject
 {
-    private readonly SentryClient _client;
-    private readonly FeedbackViewModel _feedback;
+    private readonly ISentryClient _client;
     private Envelope? _envelope;
     [ObservableProperty] private string? _dsn;
     [ObservableProperty] private string? _eventId;
     [ObservableProperty] private string? _shortEventId;
 
-    public FooterViewModel(EnvelopeService service, SentryClient client, FeedbackViewModel feedback,
-        IOptions<AppConfig> config)
+    public FooterViewModel(IEnvelopeService? service = null, ISentryClient? client = null)
     {
-        _client = client;
-        _feedback = feedback;
+        service ??= Ioc.Default.GetRequiredService<IEnvelopeService>();
+        _client = client ?? Ioc.Default.GetRequiredService<ISentryClient>();
 
-        if (!string.IsNullOrEmpty(config.Value?.FilePath))
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        Task.Run(async () =>
         {
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            Task.Run(async () =>
+            var envelope = await service.LoadAsync();
+            dispatcherQueue.TryEnqueue(() =>
             {
-                var envelope = await service.LoadAsync(config.Value.FilePath);
-                dispatcherQueue.TryEnqueue(() =>
-                {
-                    Envelope = envelope;
-                    SubmitCommand.NotifyCanExecuteChanged();
-                });
+                Envelope = envelope;
+                SubmitCommand.NotifyCanExecuteChanged();
             });
-        }
+        });
     }
 
     private Envelope? Envelope
@@ -55,13 +50,6 @@ public partial class FooterViewModel : ObservableObject
     private void Submit()
     {
         _client.SubmitEnvelopeAsync(_envelope!).GetAwaiter().GetResult();
-
-        // TODO: cleanup
-        if (!string.IsNullOrWhiteSpace(_feedback.Description))
-        {
-            _client.SubmitFeedbackAsync(Dsn!, _feedback.Email, _feedback.Name, _feedback.Description, EventId)
-                .GetAwaiter().GetResult();
-        }
 
         (Application.Current as App)?.MainWindow?.Close(); // TODO: cleanup
     }

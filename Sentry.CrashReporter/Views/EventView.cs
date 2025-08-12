@@ -12,8 +12,7 @@ public sealed partial class EventView : UserControl
 {
     public EventView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<EventViewModel>();
-        this.DataContext(vm)
+        this.DataContext(new EventViewModel(), (view, vm) => view
             .Content(new StackPanel()
                 .Orientation(Orientation.Vertical)
                 .Spacing(8)
@@ -58,7 +57,7 @@ public sealed partial class EventView : UserControl
                         .Visibility(x => x.Binding(() => vm.Attachments).Convert(ToVisibility))
                         .Content(new AttachmentGrid()
                             .Data(x => x.Binding(() => vm.Attachments))
-                            .OnPreview(a => _ = ShowPreview(a)))));
+                            .OnPreview(a => _ = ShowPreview(a))))));
     }
 
     private static Visibility ToVisibility(object? obj)

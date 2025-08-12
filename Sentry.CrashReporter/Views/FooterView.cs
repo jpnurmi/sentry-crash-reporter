@@ -7,8 +7,7 @@ public sealed partial class FooterView : Page
 {
     public FooterView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<FooterViewModel>();
-        this.DataContext(vm)
+        this.DataContext(new FooterViewModel(), (view, vm) => view
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid()
                 .ColumnSpacing(8)
@@ -20,12 +19,12 @@ public sealed partial class FooterView : Page
                         .Grid(0),
                     new Button { Content = "Cancel" }
                         .Grid(2)
-                        .Command(vm.CancelCommand)
+                        .Command(() => vm.CancelCommand)
                         .Background(Colors.Transparent),
                     new Button { Content = "Submit" }
                         .Grid(3)
-                        .Command(vm.SubmitCommand)
+                        .Command(() => vm.SubmitCommand)
                         .Foreground(Colors.White)
-                        .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush"))));
+                        .Background(ThemeResource.Get<Brush>("SystemAccentColorBrush")))));
     }
 }

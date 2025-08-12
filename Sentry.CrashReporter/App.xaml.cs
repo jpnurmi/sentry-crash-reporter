@@ -3,7 +3,6 @@ using Windows.Graphics;
 using Windows.Graphics.Display;
 using Windows.UI.ViewManagement;
 using Sentry.CrashReporter.Services;
-using Sentry.CrashReporter.ViewModels;
 using Sentry.CrashReporter.Views;
 
 namespace Sentry.CrashReporter;
@@ -20,7 +19,7 @@ public partial class App : Application
     }
 
     public Window? MainWindow { get; private set; }
-    public IHost? Host { get; private set; }
+    protected IHost? Host { get; private set; }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -31,6 +30,14 @@ public partial class App : Application
         // Load Uno.UI.Toolkit Resources
         Resources.Build(r => r.Merged(
             new ToolkitResources()));
+
+        // Configure services
+        var services = new ServiceCollection();
+        services.AddSingleton<HttpClient>();
+        services.AddSingleton<ISentryClient, SentryClient>();
+        services.AddSingleton<IEnvelopeService>(sp => new EnvelopeService(args.Arguments ?? string.Empty));
+        Ioc.Default.ConfigureServices(services.BuildServiceProvider());
+
         var builder = this.CreateBuilder(args)
             .Configure(host => host
 #if DEBUG
@@ -70,18 +77,6 @@ public partial class App : Application
                         .WithConfigurationSectionFromEntity(new AppConfig { FilePath = args.Arguments })
                         .Section<AppConfig>()
                 )
-                .ConfigureServices((context, services) =>
-                {
-                    services.AddSingleton<HttpClient>();
-                    services.AddSingleton<SentryClient>();
-                    services.AddSingleton<EnvelopeService>();
-                    services.AddSingleton<HeaderViewModel>();
-                    services.AddSingleton<EnvelopeViewModel>();
-                    services.AddSingleton<FeedbackViewModel>();
-                    services.AddSingleton<EventViewModel>();
-                    services.AddSingleton<FooterViewModel>();
-                    services.AddSingleton<LoadingViewModel>();
-                })
             );
         MainWindow = builder.Window;
 

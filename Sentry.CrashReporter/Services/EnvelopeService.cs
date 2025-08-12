@@ -1,22 +1,27 @@
 using System.Diagnostics;
-using System.Security.Cryptography;
 
 namespace Sentry.CrashReporter.Services;
 
-public class EnvelopeService
+public interface IEnvelopeService
+{
+    string FilePath { get; }
+    public ValueTask<Envelope?> LoadAsync(CancellationToken cancellationToken = default);
+}
+
+public class EnvelopeService(string filePath) : IEnvelopeService
 {
     private Envelope? _cachedEnvelope;
-    private string? _cachedHash;
 
-    public async ValueTask<Envelope?> LoadAsync(string filePath, CancellationToken cancellationToken = default)
+    public string FilePath { get; } = filePath;
+
+    public async ValueTask<Envelope?> LoadAsync(CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrEmpty(FilePath))
         {
             return null;
         }
 
-        var fileHash = await ComputeFileHashAsync(filePath, cancellationToken);
-        if (fileHash == _cachedHash && _cachedEnvelope != null)
+        if (_cachedEnvelope != null)
         {
             return _cachedEnvelope;
         }
@@ -24,27 +29,26 @@ public class EnvelopeService
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            await using var file = File.OpenRead(filePath);
+            await using var file = File.OpenRead(FilePath);
             var envelope = await Envelope.DeserializeAsync(file, cancellationToken);
             stopwatch.Stop();
-            this.Log().LogInformation($"Loaded {filePath} in {stopwatch.ElapsedMilliseconds} ms.");
+            this.Log().LogInformation($"Loaded {FilePath} in {stopwatch.ElapsedMilliseconds} ms.");
             _cachedEnvelope = envelope;
-            _cachedHash = fileHash;
             return envelope;
         }
         catch (Exception ex)
         {
-            this.Log().LogError(ex, $"Failed to load envelope from {filePath}");
+            this.Log().LogError(ex, $"Failed to load envelope from {FilePath}");
         }
 
         return null;
     }
 
-    private async Task<string> ComputeFileHashAsync(string filePath, CancellationToken cancellationToken)
-    {
-        await using var stream = File.OpenRead(filePath);
-        using var sha256 = SHA256.Create();
-        var hash = await sha256.ComputeHashAsync(stream, cancellationToken);
-        return Convert.ToHexString(hash);
-    }
+    // private async Task<string> ComputeFileHashAsync(CancellationToken cancellationToken)
+    // {
+    //     await using var stream = File.OpenRead(filePath);
+    //     using var sha256 = SHA256.Create();
+    //     var hash = await sha256.ComputeHashAsync(stream, cancellationToken);
+    //     return Convert.ToHexString(hash);
+    // }
 }

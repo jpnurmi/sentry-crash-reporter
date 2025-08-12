@@ -8,8 +8,7 @@ public sealed class EnvelopeView : Page
 {
     public EnvelopeView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<EnvelopeViewModel>();
-        this.DataContext(vm)
+        this.DataContext(new EnvelopeViewModel(), (view, vm) => view
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid()
                 .RowDefinitions("Auto,*")
@@ -60,6 +59,6 @@ public sealed class EnvelopeView : Page
                                             )
                                             .Content(new SelectableTextBlock()
                                                 .WithSourceCodePro()
-                                                .Text(x => x.Binding("Payload"))))))));
+                                                .Text(x => x.Binding("Payload")))))))));
     }
 }

@@ -19,17 +19,16 @@ public class LoadingViewModel : ILoadable
 
     public event EventHandler? IsExecutingChanged;
 
-    public LoadingViewModel(EnvelopeService service, IOptions<AppConfig> config)
+    public LoadingViewModel(IEnvelopeService? service = null)
     {
-        if (!string.IsNullOrEmpty(config.Value?.FilePath))
+        service ??= Ioc.Default.GetRequiredService<IEnvelopeService>();
+
+        IsExecuting = true;
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        Task.Run(async () =>
         {
-            IsExecuting = true;
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            Task.Run(async () =>
-            {
-                await service.LoadAsync(config.Value.FilePath);
-                dispatcherQueue.TryEnqueue(() => IsExecuting = false);
-            });
-        }
+            await service.LoadAsync();
+            dispatcherQueue.TryEnqueue(() => IsExecuting = false);
+        });
     }
 }

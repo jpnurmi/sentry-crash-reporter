@@ -120,6 +120,19 @@ public sealed class Envelope(JsonObject header, IReadOnlyList<EnvelopeItem> item
         return Minidump.FromBytes(item.Payload);
     }
 
+    public Envelope WithItems(IEnumerable<(object Header, object Payload)> items)
+    {
+        var addedItems = new List<EnvelopeItem>();
+        foreach (var item in items)
+        {
+            var itemHeader = JsonSerializer.SerializeToNode(item.Header)!.AsObject();
+            var itemPayload = JsonSerializer.SerializeToNode(item.Payload)!.AsObject();
+            addedItems.Add(new EnvelopeItem(itemHeader!, Encoding.UTF8.GetBytes(itemPayload!.ToJsonString())));
+        }
+
+        return new Envelope(Header, Items.Concat(addedItems).ToList());
+    }
+
     public async Task SerializeAsync(
         Stream stream,
         CancellationToken cancellationToken = default)

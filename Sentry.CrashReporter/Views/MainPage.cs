@@ -6,10 +6,11 @@ public sealed class MainPage : Page
 {
     public MainPage()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<LoadingViewModel>();
-        this.Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
+        this.DataContext(new LoadingViewModel(), (view, vm) => view
+            .NavigationCacheMode(NavigationCacheMode.Required)
+            .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new LoadingView()
-                .Source(vm)
+                .Source(() => vm)
                 .LoadingContent(new ProgressRing()
                     .Width(72)
                     .Height(72))
@@ -29,6 +30,6 @@ public sealed class MainPage : Page
                                     new EventView().Grid(row: 0),
                                     new FeedbackView().Grid(row: 1))),
                         new FooterView()
-                            .Grid(row: 2))));
+                            .Grid(row: 2)))));
     }
 }

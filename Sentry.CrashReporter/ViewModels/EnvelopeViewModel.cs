@@ -15,18 +15,17 @@ public partial class EnvelopeViewModel : ObservableObject
     [ObservableProperty] private string? _header;
     [ObservableProperty] private List<FormattedEnvelopeItem>? _items;
 
-    public EnvelopeViewModel(EnvelopeService service, IOptions<AppConfig> config)
+    public EnvelopeViewModel(IEnvelopeService? service = null)
     {
-        FilePath = config.Value.FilePath;
-        if (!string.IsNullOrEmpty(FilePath))
+        service ??= Ioc.Default.GetRequiredService<IEnvelopeService>();
+        FilePath = service.FilePath;
+
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        Task.Run(async () =>
         {
-            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            Task.Run(async () =>
-            {
-                var envelope = await service.LoadAsync(FilePath);
-                dispatcherQueue.TryEnqueue(() => Envelope = envelope);
-            });
-        }
+            var envelope = await service.LoadAsync();
+            dispatcherQueue.TryEnqueue(() => Envelope = envelope);
+        });
     }
 
     public string? FilePath { get; }

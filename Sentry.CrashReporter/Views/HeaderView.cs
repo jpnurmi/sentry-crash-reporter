@@ -7,8 +7,7 @@ public sealed partial class HeaderView : Page
 {
     public HeaderView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<HeaderViewModel>();
-        this.DataContext(vm)
+        this.DataContext(new HeaderViewModel(), (view, vm) => view
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid()
                 .ColumnDefinitions("*,Auto")
@@ -29,27 +28,23 @@ public sealed partial class HeaderView : Page
                                         .Margin(8, 4)
                                         .ToolTip(x => x.Binding(() => vm.ExceptionValue))
                                         .Text(x => x.Binding(() => vm.ExceptionType))
-                                        .Visibility(x =>
-                                            x.Binding(() => vm.ExceptionType).Convert(_ => ToVisibility(vm.ExceptionType))),
+                                        .Visibility(x => x.Binding(() => vm.ExceptionType).Convert(ToVisibility)),
                                     new IconLabel(FA.Globe)
                                         .Margin(8, 4)
                                         .ToolTip("Release")
                                         .Text(x => x.Binding(() => vm.Release))
-                                        .Visibility(x =>
-                                            x.Binding(() => vm.Release).Convert(_ => ToVisibility(vm.Release))),
+                                        .Visibility(x => x.Binding(() => vm.Release).Convert(ToVisibility)),
                                     new IconLabel()
                                         .Margin(8, 4)
                                         .Brand(x => x.Binding(() => vm.OsName).Convert(ToBrand))
                                         .ToolTip("Operating System")
                                         .Text(x => x.Binding(() => vm.Os))
-                                        .Visibility(x =>
-                                            x.Binding(() => vm.Os).Convert(_ => ToVisibility(vm.Os))),
+                                        .Visibility(x => x.Binding(() => vm.Os).Convert(ToVisibility)),
                                     new IconLabel(FA.Wrench)
                                         .Margin(8, 4)
                                         .ToolTip("Environment")
                                         .Text(x => x.Binding(() => vm.Environment))
-                                        .Visibility(x =>
-                                            x.Binding(() => vm.Environment).Convert(_ => ToVisibility(vm.Environment))))),
+                                        .Visibility(x => x.Binding(() => vm.Environment).Convert(ToVisibility)))),
                     new Button()
                         .Grid(1)
                         .Padding(0)
@@ -68,7 +63,7 @@ public sealed partial class HeaderView : Page
                                 new SolidColorBrush(Colors.Transparent))
                             .Add("ButtonBorderBrushPressed", new SolidColorBrush(Colors.Transparent)))
                         .Command(new RelayCommand(() =>
-                            (Window.Current?.Content as Frame)?.Navigate(typeof(EnvelopeView))))));
+                            (Window.Current?.Content as Frame)?.Navigate(typeof(EnvelopeView)))))));
     }
 
     private static Visibility ToVisibility(string? value)

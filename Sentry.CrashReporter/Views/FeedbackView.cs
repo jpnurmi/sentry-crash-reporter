@@ -6,8 +6,7 @@ public sealed partial class FeedbackView : Page
 {
     public FeedbackView()
     {
-        var vm = (Application.Current as App)!.Host!.Services.GetRequiredService<FeedbackViewModel>();
-        this.DataContext(vm)
+        this.DataContext(new FeedbackViewModel(), (view, vm) => view
             .Background(ThemeResource.Get<Brush>("ApplicationPageBackgroundThemeBrush"))
             .Content(new Grid()
                 .RowSpacing(8)
@@ -33,6 +32,6 @@ public sealed partial class FeedbackView : Page
                         .Text(x => x.Binding(() => vm.Description).TwoWay())
                         .IsEnabled(x => x.Binding(() => vm.IsEnabled))
                         .VerticalAlignment(VerticalAlignment.Stretch)
-                        .Grid(row: 3)));
+                        .Grid(row: 3))));
     }
 }
