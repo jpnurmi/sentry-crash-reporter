@@ -6,37 +6,11 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///Styles/Colors.xaml" />
+                <ResourceDictionary Source="ms-appx:///Styles/Expander.xaml" />
+                <ResourceDictionary Source="ms-appx:///Styles/Fonts.xaml" />
+                <ResourceDictionary Source="ms-appx:///Styles/Images.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
-            <!-- ReSharper disable Xaml.ConstructorWarning -->
-            <FontFamily x:Key="Source Code Pro">ms-appx:///Assets/Fonts/SourceCodePro/SourceCodePro-Regular.ttf#Source Code Pro</FontFamily>
-            <FontFamily x:Key="Font Awesome 7 Brands">ms-appx:///Assets/Fonts/FontAwesome/Font Awesome 7 Brands-Regular-400.otf#Font Awesome 7 Brands</FontFamily>
-            <FontFamily x:Key="Font Awesome 7 Free Solid">ms-appx:///Assets/Fonts/FontAwesome/Font Awesome 7 Free-Solid-900.otf#Font Awesome 7 Free Solid</FontFamily>
-            <!-- ReSharper restore Xaml.ConstructorWarning -->
-
-            <Color x:Key="SystemAccentColor">#362d59</Color>
-            <SolidColorBrush x:Key="SystemAccentColorBrush" Color="{StaticResource SystemAccentColor}" />
-            <SolidColorBrush x:Key="ProgressRingForegroundThemeBrush" Color="{StaticResource SystemAccentColor}" />
-            <SolidColorBrush x:Key="TextControlBorderBrush" Color="{StaticResource SystemBaseLowColor}" />
-            <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="{StaticResource SystemBaseLowColor}" />
-            <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="{StaticResource SystemAccentColor}" />
-            <SolidColorBrush x:Key="TextControlBorderBrushDisabled" Color="{StaticResource SystemBaseLowColor}" />
-
-            <!-- ReSharper disable Xaml.LanguageLevel -->
-            <x:Double x:Key="ExpanderChevronButtonSize">20</x:Double>
-            <!-- ReSharper restore Xaml.LanguageLevel -->
-            <SolidColorBrush x:Key="ExpanderChevronBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="ExpanderChevronPointerOverBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="ExpanderChevronPressedBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="ExpanderChevronForeground" Color="{ThemeResource SystemColorButtonFaceColor}" />
-            <SolidColorBrush x:Key="ExpanderChevronPointerOverForeground"
-                             Color="{ThemeResource SystemColorButtonFaceColor}" Opacity="0.6" />
-            <SolidColorBrush x:Key="ExpanderChevronPressedForeground"
-                             Color="{ThemeResource SystemColorButtonFaceColor}" Opacity="0.4" />
-            <Style TargetType="Expander" BasedOn="{StaticResource DefaultExpanderStyle}">
-                <!-- ReSharper disable once Xaml.DependencyPropertyResolveError -->
-                <Setter Property="MinHeight" Value="{ThemeResource TextControlThemeMinHeight}" />
-            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -58,7 +58,7 @@ public sealed partial class HeaderView : Page
                         .BorderBrush(Colors.Transparent)
                         .VerticalAlignment(VerticalAlignment.Top)
                         .Content(new Image()
-                            .Source("ms-appx:///Assets/SentryGlyph.png")
+                            .Source(ThemeResource.Get<ImageSource>("SentryGlyphIcon"))
                             .Width(68)
                             .Height(60))
                         .Resources(r => r
